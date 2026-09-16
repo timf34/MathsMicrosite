@@ -1,7 +1,7 @@
 ---
 const wave = Array.from({ length: 161 }, (_, i) => {
   const x = 20 + i * 1.25;
-  const y = 70 - 30 * Math.sin((i / 160) * Math.PI * 4);
+  const y = i === 160 ? 70 : 70 - 30 * Math.sin((i / 160) * Math.PI * 4);
   return `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`;
 }).join(' ');
 const points = Array.from({ length: 17 }, (_, i) => ({
@@ -47,7 +47,16 @@ const graph = points.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ');
     const render = () => {
       frame = 0;
       const rect = section.getBoundingClientRect();
-      const progress = reducedMotion.matches ? 1 : clamp((window.innerHeight * 0.6 - rect.top) / Math.max(1, rect.height - window.innerHeight * 0.2));
+      const scrollTop = window.scrollY;
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const startScroll = Math.max(0, scrollTop + rect.top - (window.innerHeight - 48));
+      // Fit the entire curve to the remaining page, including responsive layout
+      // and any content added beneath the signatories. Snap at the bottom to
+      // account for fractional scroll positions and pixel rounding.
+      const atBottom = scrollTop >= maxScroll - 1;
+      const progress = reducedMotion.matches || atBottom
+        ? 1
+        : clamp((scrollTop - startScroll) / Math.max(1, maxScroll - startScroll));
       motif.dataset.progress = progress.toFixed(3);
       motif.hidden = selected === 'none';
       motif.dataset.visible = String(rect.top < window.innerHeight - 48);
@@ -55,7 +64,7 @@ const graph = points.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ');
       motif.querySelectorAll<SVGGElement>('[data-drawing]').forEach(group => {
         group.toggleAttribute('hidden', group.dataset.drawing !== selected);
       });
-      if (selected === 'sine') draw(motif.querySelector('.draw-line')!, 0.06 + 0.94 * progress);
+      if (selected === 'sine') draw(motif.querySelector('.draw-line')!, progress);
       if (selected === 'geometry') {
         motif.querySelectorAll('.construction-line').forEach((line, i) => draw(line, progress * 4 - i));
       }
@@ -89,7 +98,9 @@ const graph = points.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ');
     window.addEventListener('resize', schedule);
     window.addEventListener('pageshow', schedule);
     reducedMotion.addEventListener('change', schedule);
-    new ResizeObserver(schedule).observe(section);
+    const layoutObserver = new ResizeObserver(schedule);
+    layoutObserver.observe(section);
+    layoutObserver.observe(document.body);
     render();
   }
 </script>
