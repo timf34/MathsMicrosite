@@ -344,3 +344,12 @@ dialog p {
   font-size: 1rem;
   line-height: 1.5;
 }
+
+.signature-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 22px; font-size: 13px; line-height: 1.5; }
+.signature-consent input { width: 16px; height: 16px; margin: 2px 0 0; padding: 0; flex-shrink: 0; accent-color: #111; }
+.spam-field { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+#signature-status { margin-top: 16px; font-size: 14px; line-height: 1.5; }
+#signature-status:empty { display: none; }
+.primary-button:disabled, fieldset:disabled .primary-button { opacity: .45; cursor: not-allowed; }
+.retry-link { margin-top: 12px; background: none; border: 0; padding: 4px 0; text-decoration: underline; cursor: pointer; font: inherit; }
+.retry-link[hidden] { display: none; }

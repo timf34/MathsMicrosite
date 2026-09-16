@@ -1,30 +1,31 @@
 # Maths Matters
 
-An Astro design prototype for an open letter about Leaving Cert mathematics. The supplied reference archive is preserved in `openletter.svangel.com/`.
+An Astro open-letter microsite with a linked essay and moderated Google Sheets signatories, deployed through GitHub and Vercel.
+
+## Start collecting signatures
+
+Follow [the setup guide](docs/SIGNATURE-SETUP.md). The code is implemented; the Google account owner must authorise/deploy the supplied Apps Script and add two server-only Vercel settings. Until then the form stays disabled. No example signatories appear on the production homepage.
 
 ## Run
 
-Use Node 22.12 or newer. Install dependencies with `npm install`, then run `npm run dev -- --background`. Manage the server with `npm run astro -- dev status`, `npm run astro -- dev logs`, and `npm run astro -- dev stop`. Build with `npm run build`.
+Use Node 22.12 or newer. Install dependencies with `npm install`, then run `npm run dev -- --background`. Manage the server with `npm run astro -- dev status`, `npm run astro -- dev logs`, and `npm run astro -- dev stop`. Build with `npm run build`. Run the integration checks with `npm test`.
+
+The local Astro server also serves `/api/signatures` through the same handler used on Vercel. To connect locally, copy `.env.example` to `.env.local`, enter the private settings, and restart. The normal Vercel build remains static Astro plus a Node function at `api/signatures.js`.
 
 ## Editing
 
-- Letter and page content: `src/pages/index.astro`.
-- Names: `src/data/site.ts`. Add a record to add a person, set `visible: false` to hide one (or delete the record), and change `priority` to curate the order. Smaller numbers come first. Rebuild to publish changes.
-- Explainer: `/explainer/` renders `src/pages/Maths curriculum.md`. Edit that Markdown to update the essay; its section menu is generated from the headings. The homepage links to it in the same tab.
+- Homepage and letter: `src/pages/index.astro`.
+- Essay: `src/pages/Maths curriculum.md`, rendered at `/explainer/`; its section menu is generated automatically.
 - Appearance: `src/styles/global.css`.
+- Moderation: the private Google Sheet. No rebuild is needed for approvals or ordering changes.
+- API and validation: `api/signatures.js` and `server/signatures.mjs`.
+- Google-side script: `scripts/google-signatures.gs`.
+- Archived example-name data in `src/data/site.ts` is not used by the homepage.
 
 ## Design previews
 
-Open `/?design=white` for the temporary style switcher. Compare original grey, crisp white, white with fine rules, and warm white with softer rules. The essay already uses serif body text. The selection travels to the essay and back via the URL; it is not stored as a site-wide preference. Exit using the switcher’s ×. Normal URLs use crisp white with fine lines.
+Use `/?design=white` to open the optional style switcher. Normal URLs use crisp white with fine lines. The original grey and warm white remain available for comparison. During local development the switcher also offers experimental graphics. Only the sine wave appears on the production site.
 
-## Current scope
+## Launch notes
 
-This is a design-first prototype. The six political names are explicitly labelled examples, not endorsements. Another 30 fictional placeholders demonstrate a longer scrolling list. The signing form validates input and displays a private preview; it does not send, store, or add any information to the signatory list. No database, live submission endpoint, admin login, or anti-bot service is connected. JavaScript is required for the form preview. The preview is marked noindex until real content and consenting signatories are ready.
-
-The supplied letter is retained, including “rigourous qualitative metrics”; confirm whether “rigorous quantitative metrics” was intended before launch.
-
-## Suggested next phase
-
-Keep the Astro frontend and add a server submission endpoint plus a small hosted database. Store public name, optional role, publication status, featured priority, and creation date separately from private email and verification data. Public reads must only return approved public fields. Support self-submission and authenticated organiser entry; give organisers approve/hide/delete/reorder controls. A verified email and moderation queue would help avoid impersonation of politicians. Validate anti-bot tokens on the server, add rate limits and a honeypot, and validate/normalise all inputs on the server. An email verification flow can confirm email control but does not establish political identity.
-
-Choose hosting and database together when moving to live collection. Add an appropriate privacy notice, retention policy and explicit publication consent, replace example entries with authorised signatories, and remove preview notices/noindex only when ready. No public deployment has been configured.
+The site remains noindex pending final launch review. The supplied letter text is preserved; confirm whether “rigourous qualitative metrics” should read “rigorous quantitative metrics”. The Google integration requires a real end-to-end check after account setup; mocked tests cannot verify Google permissions or Vercel environment variables. See the setup guide for the approval, privacy, and identity-review workflow.

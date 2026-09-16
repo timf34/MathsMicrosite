@@ -1,8 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ScrollMotif from '../components/ScrollMotif.astro';
-import { site, signatories } from '../data/site';
-const people = signatories.filter(person => person.visible).sort((a, b) => a.priority - b.priority || a.name.localeCompare(b.name, 'en-IE'));
+import { site } from '../data/site';
 ---
 <Layout>
   <a class="skip-link" href="#letter">Skip to the letter</a>
@@ -26,9 +25,11 @@ const people = signatories.filter(person => person.visible).sort((a, b) => a.pri
         <p class="explainer">{site.explainerUrl ? <a href={site.explainerUrl}>Read the full explainer</a> : <span>Full explainer coming soon.</span>}</p>
       </article>
       <section id="signatories" aria-labelledby="signatories-title">
-        <h2 id="signatories-title">{people.length} example signatories</h2>
-        <p class="placeholder-notice">Design placeholders only. These people have not signed or endorsed this letter.</p>
-        <ul class="people-list">{people.map(person => <li><h3>{person.name}</h3><p>{person.description}</p></li>)}</ul>
+        <h2 id="signatories-title">Signatories</h2>
+        <p id="signatories-status" class="placeholder-notice" role="status">Loading approved signatures…</p>
+        <button id="retry-signatories" class="retry-link" type="button" hidden>Try again</button>
+        <ul class="people-list" id="public-signatories"></ul>
+        <noscript><p>Please enable JavaScript to view the current signatories.</p></noscript>
       </section>
     </div>
     <aside id="sign" aria-labelledby="sign-title">
@@ -39,41 +40,19 @@ const people = signatories.filter(person => person.visible).sort((a, b) => a.pri
           <label><span class="sr-only">Last name (required)</span><input name="lastName" autocomplete="family-name" required maxlength="70" placeholder="Last name*" /></label>
           <label><span class="sr-only">Email (required)</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="Email*" /></label>
           <label><span class="sr-only">Role or title (optional)</span><input name="role" maxlength="100" placeholder="Role or title" /></label>
+          <div class="spam-field" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <label class="signature-consent"><input type="checkbox" name="consent" required /><span>I am signing as an individual and agree to publication of my name and optional role after review.</span></label>
           <button class="primary-button" type="submit">Sign</button>
         </fieldset>
-        <noscript><p>Enable JavaScript to try the preview form. No signatures are being collected.</p></noscript>
+        <noscript><p>Please enable JavaScript to submit your signature.</p></noscript>
       </form>
-      <p id="preview-note">Preview only. Nothing is sent or saved.</p>
+      <p id="preview-note">Checking whether signing is open…</p>
+      <p id="signature-status" role="status" aria-live="polite"></p>
       {site.explainerUrl && <p class="signature-explainer"><a href={site.explainerUrl}>Read the full explainer</a></p>}
       <ScrollMotif />
     </aside>
   </main>
-  <dialog id="signature-preview" aria-labelledby="preview-title">
-    <button class="close-dialog" aria-label="Close preview" type="button">×</button>
-    <h2 id="preview-title">Your signature preview</h2>
-    <div class="preview-person"><h3 id="preview-name"></h3><p id="preview-role"></p></div>
-    <p>No signature has been submitted. Your details have not been sent or saved.</p>
-    <button class="primary-button close-preview" type="button">Back to the letter</button>
-  </dialog>
 </Layout>
 <script>
-  const form = document.querySelector<HTMLFormElement>('#signature-form')!;
-  const dialog = document.querySelector<HTMLDialogElement>('#signature-preview')!;
-  document.querySelector<HTMLFieldSetElement>('#form-fields')!.disabled = false;
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    const data = new FormData(form);
-    const first = String(data.get('firstName') ?? '').trim();
-    const last = String(data.get('lastName') ?? '').trim();
-    for (const [key, value] of [['firstName', first], ['lastName', last]]) {
-      const input = form.elements.namedItem(key) as HTMLInputElement;
-      input.setCustomValidity(value ? '' : 'Please enter your name.');
-    }
-    if (!form.reportValidity()) return;
-    document.querySelector('#preview-name')!.textContent = `${first} ${last}`;
-    document.querySelector('#preview-role')!.textContent = String(data.get('role') ?? '').trim() || 'Individual signatory';
-    dialog.showModal();
-  });
-  form.addEventListener('input', event => { if (event.target instanceof HTMLInputElement) event.target.setCustomValidity(''); });
-  document.querySelectorAll('.close-dialog, .close-preview').forEach(button => button.addEventListener('click', () => dialog.close()));
+  import '../scripts/signatures';
 </script>
