@@ -1,7 +1,11 @@
 :root {
   font-family: Helvetica, Arial, sans-serif;
-  color: #000;
-  background: #f1f1f1;
+  --preview-paper: #fff;
+  --preview-ink: #111;
+  --preview-rule: #222;
+  --signatory-rule-width: 1px;
+  color: var(--preview-ink);
+  background: var(--preview-paper);
   font-synthesis: none;
   --serif: Georgia, "Times New Roman", serif;
 }
@@ -87,7 +91,7 @@ article .explainer {
 aside {
   position: sticky;
   top: 40px;
-  border-top: 2px solid #000;
+  border-top: var(--signatory-rule-width) solid var(--preview-rule);
 }
 aside h2 {
   font-family: var(--serif);
@@ -113,16 +117,16 @@ input {
   width: 100%;
   min-width: 0;
   padding: 8px 0;
-  color: #000;
+  color: var(--preview-ink);
   font-size: 1.125rem;
   line-height: 1.5;
   background: transparent;
   border: 0;
-  border-bottom: 2px solid #000;
+  border-bottom: var(--signatory-rule-width) solid var(--preview-rule);
   border-radius: 0;
 }
 input::placeholder {
-  color: #000;
+  color: var(--preview-ink);
   opacity: 1;
 }
 .primary-button {
@@ -201,8 +205,8 @@ input::placeholder {
   top: 12px;
 }
 dialog {
-  background: #f1f1f1;
-  color: #000;
+  background: var(--preview-paper);
+  color: var(--preview-ink);
   border: 2px solid #000;
   padding: 40px;
   max-width: 480px;

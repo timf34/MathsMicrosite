@@ -73,7 +73,7 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
 <style is:global>
   .essay-controls { position: fixed; top: 24px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: start; z-index: 10; pointer-events: none; }
   .essay-controls > * { pointer-events: auto; }
-  .essay-menu summary, .essay-home { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #000; background: #f1f1f1; cursor: pointer; text-decoration: none; }
+  .essay-menu summary, .essay-home { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #000; background: var(--preview-paper); cursor: pointer; text-decoration: none; }
   .essay-menu summary { list-style: none; }
   .essay-menu summary::-webkit-details-marker { display: none; }
   .essay-menu summary:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
@@ -83,7 +83,7 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-menu[open] .burger span:nth-child(2) { opacity: 0; }
   .essay-menu[open] .burger span:last-child { transform: translateY(-7px) rotate(-45deg); }
   .essay-home { font-size: 36px; font-weight: 300; line-height: 1; }
-  .essay-menu nav { position: absolute; top: 56px; left: 0; background: #f1f1f1; width: min(340px, calc(100vw - 48px)); padding: 8px 12px; max-height: calc(100dvh - 112px); overflow: auto; }
+  .essay-menu nav { position: absolute; top: 56px; left: 0; background: var(--preview-paper); width: min(340px, calc(100vw - 48px)); padding: 8px 12px; max-height: calc(100dvh - 112px); overflow: auto; }
   .essay-menu ul { list-style: none; padding: 0; margin: 0; }
   .essay-menu a { display: block; padding: 10px 0; font-size: 16px; line-height: 1.45; text-decoration: none; color: #555; }
   .essay-menu a:hover { color: #000; }

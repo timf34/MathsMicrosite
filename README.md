@@ -15,7 +15,7 @@ Use Node 22.12 or newer. Install dependencies with `npm install`, then run `npm 
 
 ## Design previews
 
-Open `/?design=white` for the temporary style switcher. Compare original grey, crisp white, white with fine rules, and warm white with softer rules. The essay already uses serif body text. The selection travels to the essay and back via the URL; it is not stored as a site-wide preference. Exit using the switcher’s ×. Normal URLs retain the original design.
+Open `/?design=white` for the temporary style switcher. Compare original grey, crisp white, white with fine rules, and warm white with softer rules. The essay already uses serif body text. The selection travels to the essay and back via the URL; it is not stored as a site-wide preference. Exit using the switcher’s ×. Normal URLs use crisp white with fine lines.
 
 ## Current scope
 

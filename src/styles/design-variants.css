@@ -1,49 +1,22 @@
-/* Optional design previews; the default site is unchanged. */
-:root:is([data-design="white"], [data-design="fine"]) {
-  --preview-paper: #fff;
-  --preview-ink: #111;
-  --preview-rule: #222;
+/* Optional design previews. Crisp white with fine lines is the default. */
+:root[data-design="original"] {
+  --preview-paper: #f1f1f1;
+  --preview-ink: #000;
+  --preview-rule: #000;
+  --signatory-rule-width: 2px;
+}
+:root[data-design="white"] {
+  --signatory-rule-width: 2px;
 }
 :root[data-design="paper"] {
   --preview-paper: #fffefa;
   --preview-ink: #292824;
   --preview-rule: #79766d;
 }
-:root:is([data-design="white"], [data-design="fine"]),
-:root[data-design="paper"] {
-  background: var(--preview-paper);
-  color: var(--preview-ink);
-}
-:root:is([data-design="white"], [data-design="fine"]) :is(.essay-menu summary, .essay-home, .essay-menu nav, dialog),
-:root[data-design="paper"] :is(.essay-menu summary, .essay-home, .essay-menu nav, dialog) {
-  background: var(--preview-paper);
-  color: var(--preview-ink);
-}
-:root:is([data-design="white"], [data-design="fine"]) :is(input, input::placeholder),
-:root[data-design="paper"] :is(input, input::placeholder) {
-  color: var(--preview-ink);
-}
-:root:is([data-design="white"], [data-design="fine"]) :is(#sign, input),
-:root[data-design="paper"] :is(#sign, input) {
-  border-color: var(--preview-rule);
-}
-:root[data-design="paper"] :is(#sign, input) {
-  border-width: 1px;
-}
 :root[data-design="paper"] .primary-button {
   background: var(--preview-ink);
   border-color: var(--preview-ink);
 }
-:root[data-design="paper"] .primary-button:hover {
-  background: #45433d;
-}
-
+:root[data-design="paper"] .primary-button:hover { background: #45433d; }
 :root[data-design] body { padding-bottom: 76px; }
 @media print { :root[data-design] body { padding-bottom: 0; } }
-
-:root:is([data-design="fine"]) :is(#sign, input) {
-  border-width: 1px;
-}
-:root:is([data-design="fine"], [data-design="paper"]) {
-  --signatory-rule-width: 1px;
-}

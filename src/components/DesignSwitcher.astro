@@ -20,7 +20,7 @@
     else delete document.documentElement.dataset.design;
     panel.hidden = !previewing;
     if (previewing) choice.value = design!;
-    const colour = ['white', 'fine', 'serif'].includes(design ?? '') ? '#ffffff' : design === 'paper' ? '#fffefa' : '#f1f1f1';
+    const colour = design === 'original' ? '#f1f1f1' : design === 'paper' ? '#fffefa' : '#ffffff';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', colour);
     // Carry the preview between the letter and essay, without changing section links.
     document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
