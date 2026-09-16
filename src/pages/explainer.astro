@@ -9,11 +9,10 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
     <details class="essay-menu" id="essay-menu">
       <summary aria-label="Open section menu" title="Open section menu"><span class="burger" aria-hidden="true"><span></span><span></span><span></span></span></summary>
       <nav aria-label="Essay sections">
-        <a class="menu-home" href="/">← Back to the open letter</a>
         <ul>{headings.map(heading => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}<li><a href="#footnote-label">Footnotes</a></li></ul>
       </nav>
     </details>
-    <a class="essay-home" href="/" aria-label="Back to the open letter">← Open letter</a>
+    <a class="essay-home" href="/" aria-label="Back to the open letter">← <span class="home-desktop">Open letter</span><span class="home-mobile">Back to the open letter</span></a>
   </div>
   <main class="essay-main" id="essay">
     <article class="essay-body"><Content /></article>
@@ -84,7 +83,8 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-menu[open] .burger span:nth-child(2) { opacity: 0; }
   .essay-menu[open] .burger span:last-child { transform: translateY(-7px) rotate(-45deg); }
   .essay-home { width: auto; padding: 0 12px; font-size: 15px; line-height: 1.4; }
-  .essay-menu .menu-home { display: none; }
+  .home-mobile { display: none; }
+  .essay-home { gap: 5px; }
   .essay-menu nav { position: absolute; top: 56px; left: 0; background-color: var(--preview-paper); background-image: var(--preview-texture); background-blend-mode: multiply; width: min(340px, calc(100vw - 48px)); padding: 8px 12px; max-height: calc(100dvh - 112px); overflow: auto; }
   .essay-menu ul { list-style: none; padding: 0; margin: 0; }
   .essay-menu a { display: block; padding: 10px 0; font-size: 16px; line-height: 1.45; text-decoration: none; color: #555; }
@@ -114,19 +114,20 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   @media(max-width: 767px) {
     .essay-controls {
       top: 0; left: 0; right: 0; height: 68px; padding: 12px;
-      justify-content: flex-end;
+      justify-content: space-between;
       background-color: var(--preview-paper);
       background-image: var(--preview-texture);
       background-blend-mode: multiply;
     }
-    .essay-home { display: none; }
+    .essay-home { order: -1; padding: 0 8px; font-size: 13px; color: #596063; background: transparent; }
+    .home-desktop { display: none; }
+    .home-mobile { display: inline; }
     .essay-menu nav {
       position: fixed; top: 68px; bottom: 0; left: 0; right: 0;
       width: auto; max-height: none;
       padding: 12px 24px max(24px, env(safe-area-inset-bottom));
       overscroll-behavior: contain;
     }
-    .essay-menu .menu-home { display: block; margin-bottom: 20px; color: var(--preview-ink); }
     .essay-menu a { padding: 12px 0; }
     .essay-main { width: calc(100% - 40px); padding-top: 88px; }
     .essay-body h1 { font-size: 2.5rem; margin-bottom: 32px; }
