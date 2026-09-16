@@ -44,7 +44,7 @@ To test locally, copy `.env.example` to `.env.local`, fill in these same two val
 1. Open the deployed site. The form should become available, with an empty approved list.
 2. Submit your own details and tick the publication consent box.
 3. Confirm that the row appears as **Pending** and your name is not on the site.
-4. Set its status to **Approved**. Within about two minutes, the name and role should appear. Email and notes must never appear.
+4. Set its status to **Approved**. Within about two minutes, the name, role and institution / company should appear. Email and notes must never appear.
 5. Change Priority to **1** to put it near the top (lower numbers first, blank numbers last). Equal priorities follow Sheet row order.
 6. Change status to **Hidden**. Confirm it disappears within about two minutes.
 7. Check that another organiser can review and edit the Sheet.
@@ -56,8 +56,8 @@ Only rows with Status exactly **Approved**, Consent checked, and a nonempty vali
 - **Approve:** change Status to Approved; keep Consent checked.
 - **Remove from public view:** change Status to Hidden, uncheck Consent, or delete the row. Cached names may remain visible for up to about two minutes.
 - **Curate:** edit Priority (1, 2, 3…). Leave it blank for ordinary ordering. Edit Name and Role to adjust the public display.
-- **Add manually:** enter Name and optional Role, check Consent only when you have permission to publish that person's signature, set Source to Manual, then choose Approved. Email and Submission ID may be blank for manual entries.
-- **Private notes:** use Notes for checks or correspondence. Name and Role are the only fields the public list receives.
+- **Add manually:** enter Name and optional Role and Institution / company, check Consent only when you have permission to publish that person's signature, set Source to Manual, then choose Approved. Email and Submission ID may be blank for manual entries.
+- **Private notes:** use Notes for checks or correspondence. Name, Role and Institution / company are the only fields the public list receives.
 - **Duplicates:** a repeat email or retried submission ID is acknowledged without adding a second row or changing existing approval. For corrections to a previous submission, an organiser edits the row.
 - Keep the tab name and header names/order unchanged. The script fails closed if headers are changed.
 
@@ -67,7 +67,7 @@ No one is automatically emailed. A supplied email is not proof of identity: veri
 
 - Keeps the custom website form.
 - Starts every public submission as Pending; visitors cannot supply approval or priority.
-- Reads only approved public names/roles, cached for 60 seconds; open pages refresh every 60 seconds.
+- Reads only approved public names, roles and institutions, cached for 60 seconds; open pages refresh every 60 seconds.
 - Escapes user-entered spreadsheet formula prefixes; renders names as text, not HTML.
 - Adds a hidden spam field, minimum fill time, basic validation, and a best-effort limit of eight new submissions per hashed connection address in a ten-minute cache window.
 - Does not put raw IP addresses in the Sheet. Google/Vercel may keep their own platform logs.
@@ -88,4 +88,10 @@ The spam controls are deliberately lightweight and do not stop determined bots. 
 
 Replace Code.gs with the latest `scripts/google-signatures.gs`, save, then choose **Deploy → Manage deployments → Edit → New version → Deploy** on the existing deployment. No setup rerun, secret change, or Vercel change is needed when updating that same deployment.
 
-The script now fills the first unused row, ignoring unchecked consent boxes but preserving other values and formulas. Existing signatures at the bottom stay intact. To bring them up, cut their populated cells across columns A–J and paste into an unused range starting at row 2; keep each signature's entire row together. Test with a different email, as repeated emails are deliberately deduplicated.
+The script now fills the first unused row, ignoring unchecked consent boxes but preserving other values and formulas. Existing signatures at the bottom stay intact. To bring them up, cut their populated cells across columns A–K and paste into an unused range starting at row 2; keep each signature's entire row together. Test with a different email, as repeated emails are deliberately deduplicated.
+
+## Update: Institution / company
+
+Replace Code.gs with the latest `scripts/google-signatures.gs`, save, and **run setupSignatories once**. This adds **Institution / company in column K** while preserving columns A–J, existing signatures, and your shared secret. If column K already contains unrelated data or formulas, setup stops rather than overwriting it; move that content first.
+
+Then use **Deploy → Manage deployments → Edit → New version → Deploy** on the existing deployment. The Vercel URL and secret stay the same. The website now collects this optional field, and publishes it alongside the role only after approval. Until the script is updated, submissions with this field filled are rejected with an explanation rather than silently losing the value; leaving it blank continues to work with the old script.

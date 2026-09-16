@@ -66,14 +66,14 @@ test('upstream throttling gives a retryable public error', async () => {
 });
 
 const source = readFileSync(new URL('../scripts/google-signatures.gs', import.meta.url), 'utf8');
-const headers = ['Name', 'Email', 'Role', 'Status', 'Priority', 'Submitted', 'Consent', 'Source', 'Submission ID', 'Notes'];
+const headers = ['Name', 'Email', 'Role', 'Status', 'Priority', 'Submitted', 'Consent', 'Source', 'Submission ID', 'Notes', 'Institution / company'];
 function googleHarness(initial = [], formulaRows = new Set()) {
-  const rows = [headers.slice(), ...initial];
+  const rows = [headers.slice(), ...initial.map(r => [...r, ...Array(Math.max(0, 11 - r.length)).fill('')])];
   const cache = new Map();
   const sheet = {
     getLastRow: () => rows.length,
     getMaxRows: () => rows.length,
-    insertRowsAfter: (_, count) => { for (let i = 0; i < count; i++) rows.push(Array(10).fill('')); },
+    insertRowsAfter: (_, count) => { for (let i = 0; i < count; i++) rows.push(Array(11).fill('')); },
     getRange: (row, col, count, width) => ({
       getValues: () => rows.slice(row - 1, row - 1 + count).map(r => r.slice(col - 1, col - 1 + width)),
       getFormulas: () => [Array.from({ length: width }, (_, i) => formulaRows.has(row) && i === 0 ? '=IF(TRUE,"","")' : '')],
@@ -96,7 +96,7 @@ const upstream = { action: 'submit', name: 'Test Reader', email: 'test@example.c
 test('Sheet filters moderation and consent, sorts by priority, and never returns private fields', () => {
   const row = (name, status, priority, consent = true) => [name, 'private@example.com', 'Role', status, priority, '', consent, 'Manual', '', 'Private notes'];
   const sheet = googleHarness([row('Pending', 'Pending', 0), row('Hidden', 'Hidden', 0), row('Rejected', 'Rejected', 0), row('No consent', 'Approved', 0, false), row('Ordinary', 'Approved', ''), row('Featured', 'Approved', 1), row('Second', 'Approved', 2)]);
-  assert.deepEqual(sheet.call({ action: 'list' }), { ok: true, signatories: [{ name: 'Featured', role: 'Role' }, { name: 'Second', role: 'Role' }, { name: 'Ordinary', role: 'Role' }] });
+  assert.deepEqual(sheet.call({ action: 'list' }), { ok: true, supportsInstitution: true, signatories: [{ name: 'Featured', role: 'Role' }, { name: 'Second', role: 'Role' }, { name: 'Ordinary', role: 'Role' }] });
 });
 test('new Sheet entries are Pending and protected from formula execution', () => {
   const sheet = googleHarness();
@@ -173,4 +173,56 @@ test('empty-looking rows with notes, checked consent or formulas are preserved',
   assert.equal(sheet.rows[2][6], true);
   assert.equal(sheet.rows[3][0], '');
   assert.equal(sheet.rows[4][0], 'Test Reader');
+});
+
+test('institution survives submission, moderation and public listing', async () => {
+  const sheet = googleHarness();
+  const fetchImpl = async (_, options) => Response.json(sheet.call(JSON.parse(options.body)));
+  const result = await handleSignatures(request({ ...valid, institution: ' Example University ' }), { env, fetchImpl });
+  assert.equal(result.status, 200);
+  assert.equal(sheet.rows[1][10], 'Example University');
+  assert.equal(sheet.rows[1][3], 'Pending');
+  sheet.rows[1][3] = 'Approved';
+  const list = await (await handleSignatures(read(), { env, fetchImpl })).json();
+  assert.equal(list.signatories[0].institution, 'Example University');
+  assert.equal(list.signatories[0].email, undefined);
+});
+test('old script cannot silently discard institution', async () => {
+  const actions = [];
+  const result = await handleSignatures(request({ ...valid, institution: 'University' }), {
+    env, fetchImpl: async (_, options) => { actions.push(JSON.parse(options.body).action); return Response.json({ ok: true, signatories: [] }); },
+  });
+  assert.equal(result.status, 503);
+  assert.deepEqual(actions, ['list']);
+});
+test('institution validation and formula protection', async () => {
+  assert.equal((await handleSignatures(request({ ...valid, institution: 'x'.repeat(151) }), { env })).status, 400);
+  const sheet = googleHarness();
+  assert.equal(sheet.call({ ...upstream, institution: '=BAD()' }).ok, true);
+  assert.equal(sheet.rows[1][10], "'=BAD()");
+});
+
+test('setup adds institution header while preserving existing sheet data and secret', () => {
+  const sheet = googleHarness([['Existing', 'existing@example.com', '', 'Pending', '', '', true, '', '', 'Keep note']]);
+  sheet.rows[0][10] = '';
+  const chain = new Proxy({}, { get: (_, key) => key === 'build' ? () => ({}) : () => chain });
+  const fakeSheet = {
+    getLastRow: () => sheet.rows.length, getMaxRows: () => sheet.rows.length,
+    getRange: (row, col, count, width) => ({
+      getValues: () => sheet.rows.slice(row - 1, row - 1 + count).map(r => r.slice(col - 1, col - 1 + width)),
+      getFormulas: () => Array.from({ length: count }, () => Array(width).fill('')),
+      setValues: values => values.forEach((r, i) => r.forEach((v, j) => { sheet.rows[row - 1 + i][col - 1 + j] = v; })),
+      setFontWeight: () => chain, setDataValidation() {}, setNumberFormat() {},
+    }), setFrozenRows() {}, autoResizeColumns() {},
+  };
+  const saved = new Map([['SHARED_SECRET', 'existing-secret']]);
+  sheet.context.PropertiesService = { getScriptProperties: () => ({ getProperty: k => saved.get(k), setProperty: (k,v) => saved.set(k,v) }) };
+  sheet.context.SpreadsheetApp.getActiveSpreadsheet = () => ({ getId: () => 'sheet-id', getSheetByName: () => fakeSheet, toast() {} });
+  sheet.context.SpreadsheetApp.newDataValidation = () => chain;
+  sheet.context.setupSignatories();
+  assert.equal(sheet.rows[0][10], 'Institution / company');
+  assert.equal(sheet.rows[1][9], 'Keep note');
+  assert.equal(saved.get('SHARED_SECRET'), 'existing-secret');
+  sheet.context.setupSignatories();
+  assert.equal(sheet.rows[1][0], 'Existing');
 });

@@ -2,7 +2,7 @@
  * Run setupSignatories once, then deploy as a Web app: execute as Me, access Anyone.
  * Requests require the private shared secret; the spreadsheet itself stays private.
  */
-const SIGNATURE_HEADERS = ['Name', 'Email', 'Role', 'Status', 'Priority', 'Submitted', 'Consent', 'Source', 'Submission ID', 'Notes'];
+const SIGNATURE_HEADERS = ['Name', 'Email', 'Role', 'Status', 'Priority', 'Submitted', 'Consent', 'Source', 'Submission ID', 'Notes', 'Institution / company'];
 
 function setupSignatories() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -12,6 +12,14 @@ function setupSignatories() {
   let sheet = spreadsheet.getSheetByName('Signatories');
   if (!sheet) sheet = spreadsheet.insertSheet('Signatories');
   if (sheet.getLastRow() === 0) sheet.appendRow(SIGNATURE_HEADERS);
+  // Upgrade the original ten-column sheet without moving any existing columns.
+  const institutionHeader = sheet.getRange(1, 11, 1, 1).getValues()[0][0];
+  if (institutionHeader === '') {
+    const occupied = sheet.getRange(1, 11, sheet.getMaxRows(), 1).getValues().some(function (r) { return r[0] !== ''; });
+    const formulas = sheet.getRange(1, 11, sheet.getMaxRows(), 1).getFormulas().some(function (r) { return r[0] !== ''; });
+    if (occupied || formulas) throw new Error('Column K is in use. Move its contents before running setup.');
+    sheet.getRange(1, 11, 1, 1).setValues([['Institution / company']]);
+  }
   verifyHeaders_(sheet);
   sheet.setFrozenRows(1);
   sheet.getRange(1, 1, 1, SIGNATURE_HEADERS.length).setFontWeight('bold').setBackground('#eeeeee');
@@ -19,7 +27,7 @@ function setupSignatories() {
   sheet.getRange(2, 5, sheet.getMaxRows() - 1, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireNumberGreaterThanOrEqualTo(0).setAllowInvalid(false).build());
   sheet.getRange(2, 7, sheet.getMaxRows() - 1, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireCheckbox().setAllowInvalid(false).build());
   sheet.getRange('F:F').setNumberFormat('yyyy-mm-dd hh:mm');
-  sheet.autoResizeColumns(1, 10);
+  sheet.autoResizeColumns(1, SIGNATURE_HEADERS.length);
   spreadsheet.toast('Ready. Copy SHARED_SECRET from Apps Script > Project Settings > Script properties into Vercel.');
 }
 
@@ -43,11 +51,11 @@ function safeCell_(value) {
 }
 function publicSignatories_(rows) {
   return rows.filter(function (r) {
-    return r[3] === 'Approved' && r[6] === true && validText_(r[0], 141, true) && validText_(r[2] || '', 100, false);
+    return r[3] === 'Approved' && r[6] === true && validText_(r[0], 141, true) && validText_(r[2] || '', 100, false) && validText_(r[10] || '', 150, false);
   }).map(function (r, index) {
-    return { name: r[0].trim(), role: String(r[2] || '').trim(), priority: typeof r[4] === 'number' && isFinite(r[4]) && r[4] >= 0 ? r[4] : Number.MAX_SAFE_INTEGER, index: index };
+    return { name: r[0].trim(), role: String(r[2] || '').trim(), institution: String(r[10] || '').trim(), priority: typeof r[4] === 'number' && isFinite(r[4]) && r[4] >= 0 ? r[4] : Number.MAX_SAFE_INTEGER, index: index };
   }).sort(function (a, b) { return a.priority - b.priority || a.index - b.index; })
-    .map(function (r) { return { name: r.name, role: r.role }; });
+    .map(function (r) { const person = { name: r.name, role: r.role }; if (r.institution) person.institution = r.institution; return person; });
 }
 function doPost(e) {
   try {
@@ -57,11 +65,11 @@ function doPost(e) {
     if (body.action === 'list') {
       const sheet = sheet_();
       const rows = sheet.getLastRow() < 2 ? [] : sheet.getRange(2, 1, sheet.getLastRow() - 1, SIGNATURE_HEADERS.length).getValues();
-      return reply_({ ok: true, signatories: publicSignatories_(rows) });
+      return reply_({ ok: true, supportsInstitution: true, signatories: publicSignatories_(rows) });
     }
     if (body.action !== 'submit' || !validText_(body.name, 141, true) || !validText_(body.email, 254, true)
       || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email) || !validText_(body.role || '', 100, false)
-      || body.consent !== true || !/^[a-zA-Z0-9-]{16,80}$/.test(body.submissionId || '') || !/^[a-f0-9]{64}$/.test(body.clientKey || '')) {
+      || !validText_(body.institution || '', 150, false) || body.consent !== true || !/^[a-zA-Z0-9-]{16,80}$/.test(body.submissionId || '') || !/^[a-f0-9]{64}$/.test(body.clientKey || '')) {
       return reply_({ ok: false, code: 'INVALID' });
     }
     const lock = LockService.getScriptLock();
@@ -76,7 +84,7 @@ function doPost(e) {
       const key = 'submit:' + body.clientKey;
       const count = Number(cache.get(key) || 0);
       if (count >= 8) return reply_({ ok: false, code: 'RATE_LIMIT' });
-      const row = [safeCell_(body.name.trim()), safeCell_(email), safeCell_(String(body.role || '').trim()), 'Pending', '', new Date(), true, 'Website', body.submissionId, ''];
+      const row = [safeCell_(body.name.trim()), safeCell_(email), safeCell_(String(body.role || '').trim()), 'Pending', '', new Date(), true, 'Website', body.submissionId, '', safeCell_(String(body.institution || '').trim())];
       // Ignore unused unchecked consent boxes, but preserve any other content.
       const emptyIndex = rows.findIndex(function (r, index) {
         const empty = r.every(function (value, column) {

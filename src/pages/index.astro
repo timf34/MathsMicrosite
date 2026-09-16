@@ -44,8 +44,9 @@ import { site } from '../data/site';
           <label><span class="sr-only">Last name (required)</span><input name="lastName" autocomplete="family-name" required maxlength="70" placeholder="Last name*" /></label>
           <label><span class="sr-only">Email (required)</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="Email*" /></label>
           <label><span class="sr-only">Role or title (optional)</span><input name="role" maxlength="100" placeholder="Role or title" /></label>
+          <label><span class="sr-only">Institution / company (optional)</span><input name="institution" autocomplete="organization" maxlength="150" placeholder="Institution / company" /></label>
           <div class="spam-field" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
-          <label class="signature-consent"><input type="checkbox" name="consent" required /><span>I am signing as an individual and agree to publication of my name and optional role after review.</span></label>
+          <label class="signature-consent"><input type="checkbox" name="consent" required /><span>I am signing as an individual and agree to publication of my name, optional role and institution / company after review.</span></label>
           <button class="primary-button" type="submit">Sign</button>
         </fieldset>
         <noscript><p>Please enable JavaScript to submit your signature.</p></noscript>

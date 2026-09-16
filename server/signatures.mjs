@@ -37,7 +37,7 @@ export async function handleSignatures(request, { env = process.env, fetchImpl =
     if (body.website) return json({ error: 'Your submission was blocked by the spam check. Please reload the page and enter your details manually without autofill.' }, 400);
     if (!text(body.firstName, 70) || !text(body.lastName, 70) || !text(body.email, 254)
       || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim()) || !text(body.role ?? '', 100, false)
-      || body.consent !== true || !/^[a-zA-Z0-9-]{16,80}$/.test(body.submissionId ?? '')) {
+      || !text(body.institution ?? '', 150, false) || body.consent !== true || !/^[a-zA-Z0-9-]{16,80}$/.test(body.submissionId ?? '')) {
       return json({ error: 'Please enter your name and a valid email address, and confirm publication consent.' }, 400);
     }
     if (!Number.isFinite(body.elapsedMs) || body.elapsedMs < 1500) return json({ error: 'Please take a moment to check your details, then try again.' }, 400);
@@ -45,11 +45,23 @@ export async function handleSignatures(request, { env = process.env, fetchImpl =
       action: 'submit', secret,
       name: `${body.firstName.trim()} ${body.lastName.trim()}`,
       email: body.email.trim().toLowerCase(), role: (body.role ?? '').trim(), consent: true,
+      institution: (body.institution ?? '').trim(),
       submissionId: body.submissionId,
       clientKey: createHmac('sha256', secret).update(clientIp).digest('hex'),
     };
   }
   try {
+    // Older deployed scripts ignore unknown fields. Check before writing so no affiliation is lost.
+    if (request.method === 'POST' && payload.institution) {
+      const capabilityResponse = await fetchImpl(endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list', secret }), signal: AbortSignal.timeout(8000), redirect: 'follow',
+      });
+      const capability = capabilityResponse.ok ? await capabilityResponse.json() : null;
+      if (capability?.ok !== true || capability?.supportsInstitution !== true) {
+        return json({ error: 'Institution / company submissions are not available yet. Please try again later, or leave that optional field blank.' }, 503);
+      }
+    }
     const response = await fetchImpl(endpoint, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload), signal: AbortSignal.timeout(20000), redirect: 'follow',
@@ -64,8 +76,8 @@ export async function handleSignatures(request, { env = process.env, fetchImpl =
     if (!Array.isArray(result.signatories)) throw new Error('Invalid upstream list');
     // Explicit public allowlist, even if the script accidentally returns extra fields.
     const signatories = result.signatories.map(person => {
-      if (!person || !text(person.name, 141) || !text(person.role ?? '', 100, false)) throw new Error('Invalid upstream record');
-      return { name: person.name.trim(), role: (person.role ?? '').trim() };
+      if (!person || !text(person.name, 141) || !text(person.role ?? '', 100, false) || !text(person.institution ?? '', 150, false)) throw new Error('Invalid upstream record');
+      return { name: person.name.trim(), role: (person.role ?? '').trim(), ...(person.institution?.trim() ? { institution: person.institution.trim() } : {}) };
     });
     return json({ configured: true, signatories }, 200, 'public, max-age=0, s-maxage=60');
   } catch {

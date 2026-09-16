@@ -11,7 +11,7 @@ const pagination = document.querySelector<HTMLElement>('#signatory-pagination')!
 const seeMore = document.querySelector<HTMLButtonElement>('#signatories-more')!;
 const mobileLayout = window.matchMedia('(max-width: 767px)');
 const pageSize = 10;
-let people: Array<{ name: string; role: string }> = [];
+let people: Array<{ name: string; role: string; institution?: string }> = [];
 let visibleCount = pageSize;
 
 function renderSignatories() {
@@ -22,9 +22,9 @@ function renderSignatories() {
     const name = document.createElement('h3');
     name.textContent = person.name;
     item.append(name);
-    if (person.role) {
+    if (person.role || person.institution) {
       const role = document.createElement('p');
-      role.textContent = person.role;
+      role.textContent = [person.role, person.institution].filter(Boolean).join(', ');
       item.append(role);
     }
     fragment.append(item);
@@ -68,8 +68,8 @@ async function loadSignatories() {
       ? 'Your email stays private. Every signature is reviewed before publication.'
       : 'Signing opens soon. No signatures are being collected yet.';
     if (configured) {
-      const updatedPeople = data.signatories as Array<{ name: string; role: string }>;
-      if (!updatedPeople.every(person => typeof person.name === 'string' && typeof person.role === 'string')) throw new Error('Invalid names');
+      const updatedPeople = data.signatories as Array<{ name: string; role: string; institution?: string }>;
+      if (!updatedPeople.every(person => typeof person.name === 'string' && typeof person.role === 'string' && (person.institution === undefined || typeof person.institution === 'string'))) throw new Error('Invalid names');
       people = updatedPeople;
       renderSignatories();
       heading.textContent = `${people.length} ${people.length === 1 ? 'signatory' : 'signatories'}`;
@@ -107,6 +107,7 @@ form.addEventListener('submit', async event => {
   if (!form.reportValidity()) return;
   const payload = {
     firstName, lastName, email: String(values.get('email') ?? '').trim(),
+    institution: String(values.get('institution') ?? '').trim(),
     role: String(values.get('role') ?? '').trim(), consent: values.get('consent') === 'on',
     website: String(values.get('website') ?? ''), submissionId, elapsedMs: Date.now() - startedAt,
   };
