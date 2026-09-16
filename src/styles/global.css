@@ -375,7 +375,6 @@ dialog p {
     text-underline-offset: 4px;
     cursor: pointer;
   }
-  .signatory-pagination button:disabled { opacity: 0.35; cursor: default; }
   #signatories-title { scroll-margin-top: 24px; }
 }
 @media print { .signatory-pagination { display: none !important; } }

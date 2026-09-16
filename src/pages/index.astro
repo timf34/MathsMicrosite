@@ -29,11 +29,9 @@ import { site } from '../data/site';
         <p id="signatories-status" class="placeholder-notice" role="status">Loading approved signatures…</p>
         <button id="retry-signatories" class="retry-link" type="button" hidden>Try again</button>
         <ul class="people-list" id="public-signatories"></ul>
-        <nav id="signatory-pagination" class="signatory-pagination" aria-label="Signatory pages" hidden>
-          <button id="signatories-previous" type="button" aria-controls="public-signatories">Previous</button>
-          <span id="signatories-page" role="status" aria-live="polite"></span>
-          <button id="signatories-next" type="button" aria-controls="public-signatories">Next</button>
-        </nav>
+        <div id="signatory-pagination" class="signatory-pagination" hidden>
+          <button id="signatories-more" type="button" aria-controls="public-signatories">See more</button>
+        </div>
         <noscript><p>Please enable JavaScript to view the current signatories.</p></noscript>
       </section>
     </div>

@@ -8,18 +8,14 @@ const heading = document.querySelector<HTMLElement>('#signatories-title')!;
 const listStatus = document.querySelector<HTMLElement>('#signatories-status')!;
 const retry = document.querySelector<HTMLButtonElement>('#retry-signatories')!;
 const pagination = document.querySelector<HTMLElement>('#signatory-pagination')!;
-const previousPage = document.querySelector<HTMLButtonElement>('#signatories-previous')!;
-const nextPage = document.querySelector<HTMLButtonElement>('#signatories-next')!;
-const pageLabel = document.querySelector<HTMLElement>('#signatories-page')!;
+const seeMore = document.querySelector<HTMLButtonElement>('#signatories-more')!;
 const mobileLayout = window.matchMedia('(max-width: 767px)');
-const pageSize = 6;
+const pageSize = 10;
 let people: Array<{ name: string; role: string }> = [];
-let page = 0;
+let visibleCount = pageSize;
 
 function renderSignatories() {
-  const pageCount = Math.max(1, Math.ceil(people.length / pageSize));
-  page = Math.min(page, pageCount - 1);
-  const visiblePeople = mobileLayout.matches ? people.slice(page * pageSize, (page + 1) * pageSize) : people;
+  const visiblePeople = mobileLayout.matches ? people.slice(0, visibleCount) : people;
   const fragment = document.createDocumentFragment();
   visiblePeople.forEach(person => {
     const item = document.createElement('li');
@@ -34,20 +30,20 @@ function renderSignatories() {
     fragment.append(item);
   });
   list.replaceChildren(fragment);
-  pagination.hidden = !mobileLayout.matches || pageCount <= 1;
-  previousPage.disabled = page === 0;
-  nextPage.disabled = page === pageCount - 1;
-  pageLabel.textContent = `Page ${page + 1} of ${pageCount}`;
+  pagination.hidden = !mobileLayout.matches || visibleCount >= people.length;
 }
 
-function changePage(direction: number) {
-  page = Math.max(0, page + direction);
+seeMore.addEventListener('click', () => {
+  const firstNewIndex = visibleCount;
+  visibleCount += pageSize;
   renderSignatories();
-  heading.focus({ preventScroll: true });
-  heading.scrollIntoView({ block: 'start' });
-}
-previousPage.addEventListener('click', () => changePage(-1));
-nextPage.addEventListener('click', () => changePage(1));
+  // Keep the reading position while moving keyboard focus to the newly revealed names.
+  const firstNewName = list.children[firstNewIndex]?.querySelector('h3');
+  if (firstNewName instanceof HTMLElement) {
+    firstNewName.tabIndex = -1;
+    firstNewName.focus({ preventScroll: true });
+  }
+});
 mobileLayout.addEventListener('change', renderSignatories);
 
 let configured = false;
@@ -81,7 +77,7 @@ async function loadSignatories() {
       hasList = true;
     } else {
       people = [];
-      page = 0;
+      visibleCount = pageSize;
       renderSignatories();
       heading.textContent = 'Signatories';
       listStatus.textContent = 'Approved signatures will appear here once signing opens.';
