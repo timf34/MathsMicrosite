@@ -67,12 +67,18 @@ test('upstream throttling gives a retryable public error', async () => {
 
 const source = readFileSync(new URL('../scripts/google-signatures.gs', import.meta.url), 'utf8');
 const headers = ['Name', 'Email', 'Role', 'Status', 'Priority', 'Submitted', 'Consent', 'Source', 'Submission ID', 'Notes'];
-function googleHarness(initial = []) {
+function googleHarness(initial = [], formulaRows = new Set()) {
   const rows = [headers.slice(), ...initial];
   const cache = new Map();
   const sheet = {
     getLastRow: () => rows.length,
-    getRange: (row, col, count, width) => ({ getValues: () => rows.slice(row - 1, row - 1 + count).map(r => r.slice(col - 1, col - 1 + width)) }),
+    getMaxRows: () => rows.length,
+    insertRowsAfter: (_, count) => { for (let i = 0; i < count; i++) rows.push(Array(10).fill('')); },
+    getRange: (row, col, count, width) => ({
+      getValues: () => rows.slice(row - 1, row - 1 + count).map(r => r.slice(col - 1, col - 1 + width)),
+      getFormulas: () => [Array.from({ length: width }, (_, i) => formulaRows.has(row) && i === 0 ? '=IF(TRUE,"","")' : '')],
+      setValues: values => values.forEach((r, i) => { rows[row - 1 + i] = [...r]; }),
+    }),
     appendRow: row => rows.push(row),
   };
   const context = vm.createContext({
@@ -144,4 +150,27 @@ test('website-to-script contract works for pending, approved and hidden states',
   assert.deepEqual((await (await handleSignatures(read(), { env, fetchImpl })).json()).signatories, [{ name: 'Test Reader', role: 'Teacher' }]);
   sheet.rows[1][3] = 'Hidden';
   assert.deepEqual((await (await handleSignatures(read(), { env, fetchImpl })).json()).signatories, []);
+});
+
+test('submissions fill checkbox-only rows near the top without overwriting existing entries', () => {
+  const blank = () => ['', '', '', '', '', '', false, '', '', ''];
+  const existing = ['Existing signer', 'existing@example.com', '', 'Pending', '', '', true, 'Website', 'existing-submission', ''];
+  const sheet = googleHarness([...Array.from({ length: 999 }, blank), existing]);
+  assert.equal(sheet.call(upstream).ok, true);
+  assert.equal(sheet.rows[1][0], 'Test Reader');
+  assert.equal(sheet.rows[1000][0], 'Existing signer');
+  assert.equal(sheet.rows.length, 1001);
+  assert.equal(sheet.call({ ...upstream, email: 'second@example.com', submissionId: 'second-submission-id' }).ok, true);
+  assert.equal(sheet.rows[2][1], 'second@example.com');
+});
+test('empty-looking rows with notes, checked consent or formulas are preserved', () => {
+  const blank = () => ['', '', '', '', '', '', false, '', '', ''];
+  const notes = blank(); notes[9] = 'Organiser is preparing this row';
+  const consent = blank(); consent[6] = true;
+  const sheet = googleHarness([notes, consent, blank(), blank()], new Set([4]));
+  assert.equal(sheet.call(upstream).ok, true);
+  assert.equal(sheet.rows[1][9], notes[9]);
+  assert.equal(sheet.rows[2][6], true);
+  assert.equal(sheet.rows[3][0], '');
+  assert.equal(sheet.rows[4][0], 'Test Reader');
 });

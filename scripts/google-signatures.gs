@@ -77,7 +77,19 @@ function doPost(e) {
       const count = Number(cache.get(key) || 0);
       if (count >= 8) return reply_({ ok: false, code: 'RATE_LIMIT' });
       const row = [safeCell_(body.name.trim()), safeCell_(email), safeCell_(String(body.role || '').trim()), 'Pending', '', new Date(), true, 'Website', body.submissionId, ''];
-      sheet.appendRow(row);
+      // Ignore unused unchecked consent boxes, but preserve any other content.
+      const emptyIndex = rows.findIndex(function (r, index) {
+        const empty = r.every(function (value, column) {
+          return value === '' || (column === 6 && value === false);
+        });
+        return empty && sheet.getRange(index + 2, 1, 1, SIGNATURE_HEADERS.length)
+          .getFormulas()[0].every(function (formula) { return formula === ''; });
+      });
+      const targetRow = emptyIndex === -1 ? rows.length + 2 : emptyIndex + 2;
+      if (targetRow > sheet.getMaxRows()) {
+        sheet.insertRowsAfter(sheet.getMaxRows(), targetRow - sheet.getMaxRows());
+      }
+      sheet.getRange(targetRow, 1, 1, SIGNATURE_HEADERS.length).setValues([row]);
       SpreadsheetApp.flush();
       cache.put(key, String(count + 1), 600);
       return reply_({ ok: true });

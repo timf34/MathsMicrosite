@@ -83,3 +83,9 @@ The spam controls are deliberately lightweight and do not stop determined bots. 
 - **Approval not showing:** check Consent, exact Status, nonempty Name, and allow two minutes for caches/refresh. Blank priority is allowed.
 - **Too many submissions:** wait ten minutes. People sharing a connection can share the limit.
 - The optional local graphic switcher remains a development-only experiment. The sine wave is the production graphic and adapts when the live list changes.
+
+## Update: signatures appearing near row 1001
+
+Replace Code.gs with the latest `scripts/google-signatures.gs`, save, then choose **Deploy → Manage deployments → Edit → New version → Deploy** on the existing deployment. No setup rerun, secret change, or Vercel change is needed when updating that same deployment.
+
+The script now fills the first unused row, ignoring unchecked consent boxes but preserving other values and formulas. Existing signatures at the bottom stay intact. To bring them up, cut their populated cells across columns A–J and paste into an unused range starting at row 2; keep each signature's entire row together. Test with a different email, as repeated emails are deliberately deduplicated.
