@@ -33,8 +33,8 @@ export async function handleSignatures(request, { env = process.env, fetchImpl =
       body = JSON.parse(raw);
     } catch { return json({ error: 'Invalid submission.' }, 400); }
     if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ error: 'Invalid submission.' }, 400);
-    // Quietly discard simple automated submissions; no Sheet write is made.
-    if (body.website) return json({ ok: true, message });
+    // A blocked submission must never look saved to a real visitor.
+    if (body.website) return json({ error: 'Your submission was blocked by the spam check. Please reload the page and enter your details manually without autofill.' }, 400);
     if (!text(body.firstName, 70) || !text(body.lastName, 70) || !text(body.email, 254)
       || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim()) || !text(body.role ?? '', 100, false)
       || body.consent !== true || !/^[a-zA-Z0-9-]{16,80}$/.test(body.submissionId ?? '')) {

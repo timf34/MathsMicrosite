@@ -37,9 +37,12 @@ test('visitor cannot set approval, rank, notes or raw IP in upstream submission'
   assert.ok(!JSON.stringify(forwarded).includes('192.0.2.10'));
   assert.equal(result.headers.get('cache-control'), 'no-store');
 });
-test('honeypot is discarded without calling Google', async () => {
+test('honeypot rejection never claims the signature was saved', async () => {
   const result = await handleSignatures(request({ ...valid, website: 'spam' }), { env, fetchImpl: () => { throw new Error('Must not run'); } });
-  assert.equal(result.status, 200);
+  assert.equal(result.status, 400);
+  const body = await result.json();
+  assert.equal(body.ok, undefined);
+  assert.match(body.error, /spam check/);
 });
 test('reject missing consent, bad email, blank name, invalid ID and rushed submissions', async () => {
   for (const change of [{ consent: false }, { email: 'no-email' }, { firstName: '   ' }, { lastName: 'x'.repeat(71) }, { submissionId: 'short' }, { elapsedMs: 1 }, { role: 'bad\nrole' }]) {
