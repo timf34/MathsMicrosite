@@ -1,0 +1,77 @@
+<div id="design-switcher" hidden>
+  <label for="design-choice">Try a style</label>
+  <select id="design-choice">
+    <option value="original">Original grey</option>
+    <option value="white">Crisp white</option>
+    <option value="paper">Warm white · softer lines</option>
+  </select>
+  <button id="close-design-preview" type="button" aria-label="Exit style preview" title="Exit style preview">×</button>
+</div>
+<script>
+  const themes = ['original', 'white', 'paper'];
+  const panel = document.querySelector<HTMLDivElement>('#design-switcher')!;
+  const choice = document.querySelector<HTMLSelectElement>('#design-choice')!;
+  const initial = new URL(window.location.href).searchParams.get('design');
+
+  const applyDesign = (design: string | null) => {
+    const previewing = design !== null && themes.includes(design);
+    if (previewing) document.documentElement.dataset.design = design!;
+    else delete document.documentElement.dataset.design;
+    panel.hidden = !previewing;
+    if (previewing) choice.value = design!;
+    const colour = design === 'white' ? '#ffffff' : design === 'paper' ? '#fffefa' : '#f1f1f1';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', colour);
+    // Carry the preview between the letter and essay, without changing section links.
+    document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
+      if (link.getAttribute('href')?.startsWith('#')) return;
+      const url = new URL(link.href);
+      if (url.origin !== window.location.origin || !['/', '/explainer/'].includes(url.pathname)) return;
+      if (previewing) url.searchParams.set('design', design!);
+      else url.searchParams.delete('design');
+      link.href = `${url.pathname}${url.search}${url.hash}`;
+    });
+  };
+  const selectDesign = (design: string | null) => {
+    const url = new URL(window.location.href);
+    if (design) url.searchParams.set('design', design);
+    else url.searchParams.delete('design');
+    history.replaceState(null, '', url);
+    applyDesign(design);
+  };
+  applyDesign(initial);
+  choice.addEventListener('change', () => selectDesign(choice.value));
+  document.querySelector('#close-design-preview')!.addEventListener('click', () => {
+    selectDesign(null);
+    const title = document.querySelector<HTMLElement>('h1');
+    title?.setAttribute('tabindex', '-1');
+    title?.focus({ preventScroll: true });
+  });
+  window.addEventListener('popstate', () => applyDesign(new URL(window.location.href).searchParams.get('design')));
+</script>
+<style>
+  #design-switcher {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100% - 24px);
+    padding: 8px 10px 8px 18px;
+    background: #fff;
+    color: #222;
+    border: 1px solid #d8d8d8;
+    border-radius: 999px;
+    box-shadow: 0 3px 18px #0000000d;
+    font: 14px/1.4 Helvetica, Arial, sans-serif;
+  }
+  #design-switcher[hidden] { display: none; }
+  label { white-space: nowrap; }
+  select { min-width: 0; padding: 8px 24px 8px 10px; font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; }
+  button { width: 32px; height: 32px; padding: 0; background: transparent; border: 0; font: 24px/1 Helvetica, Arial, sans-serif; color: #555; cursor: pointer; flex-shrink: 0; }
+  select:focus-visible, button:focus-visible { outline: 2px solid #333; outline-offset: 2px; }
+  @media(max-width: 440px) { #design-switcher { gap: 4px; padding-left: 14px; } label { font-size: 12px; } select { font-size: 13px; padding-left: 4px; padding-right: 4px; } }
+  @media print { #design-switcher { display: none; } }
+</style>

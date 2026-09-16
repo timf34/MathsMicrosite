@@ -1,0 +1,42 @@
+/* Optional design previews; the default site is unchanged. */
+:root[data-design="white"] {
+  --preview-paper: #fff;
+  --preview-ink: #111;
+  --preview-rule: #222;
+}
+:root[data-design="paper"] {
+  --preview-paper: #fffefa;
+  --preview-ink: #292824;
+  --preview-rule: #79766d;
+}
+:root[data-design="white"],
+:root[data-design="paper"] {
+  background: var(--preview-paper);
+  color: var(--preview-ink);
+}
+:root[data-design="white"] :is(.essay-menu summary, .essay-home, .essay-menu nav, dialog),
+:root[data-design="paper"] :is(.essay-menu summary, .essay-home, .essay-menu nav, dialog) {
+  background: var(--preview-paper);
+  color: var(--preview-ink);
+}
+:root[data-design="white"] :is(input, input::placeholder),
+:root[data-design="paper"] :is(input, input::placeholder) {
+  color: var(--preview-ink);
+}
+:root[data-design="white"] :is(#sign, input, .people-list li),
+:root[data-design="paper"] :is(#sign, input, .people-list li) {
+  border-color: var(--preview-rule);
+}
+:root[data-design="paper"] :is(#sign, input, .people-list li) {
+  border-width: 1px;
+}
+:root[data-design="paper"] .primary-button {
+  background: var(--preview-ink);
+  border-color: var(--preview-ink);
+}
+:root[data-design="paper"] .primary-button:hover {
+  background: #45433d;
+}
+
+:root[data-design] body { padding-bottom: 76px; }
+@media print { :root[data-design] body { padding-bottom: 0; } }

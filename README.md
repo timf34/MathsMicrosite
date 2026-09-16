@@ -13,6 +13,10 @@ Use Node 22.12 or newer. Install dependencies with `npm install`, then run `npm 
 - Explainer: `/explainer/` renders `src/pages/Maths curriculum.md`. Edit that Markdown to update the essay; its section menu is generated from the headings. The homepage links to it in the same tab.
 - Appearance: `src/styles/global.css`.
 
+## Design previews
+
+Open `/?design=white` for the temporary style switcher. Compare original grey, crisp white, and warm white with softer rules. The selection travels to the essay and back via the URL; it is not stored as a site-wide preference. Exit using the switcher’s ×. Normal URLs retain the original design.
+
 ## Current scope
 
 This is a design-first prototype. All six political names are explicitly labelled examples, not endorsements. The signing form validates input and displays a private preview; it does not send, store, or add any information to the signatory list. No database, live submission endpoint, admin login, or anti-bot service is connected. JavaScript is required for the form preview. The preview is marked noindex until real content and consenting signatories are ready.
