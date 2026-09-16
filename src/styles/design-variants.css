@@ -51,8 +51,8 @@
   z-index: -1;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgb(91 119 134 / 18%) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(91 119 134 / 18%) 1px, transparent 1px);
+    linear-gradient(to right, rgb(91 119 134 / 12%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(91 119 134 / 12%) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: linear-gradient(to bottom, #000 0%, rgb(0 0 0 / 75%) 25%, rgb(0 0 0 / 25%) 60%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgb(0 0 0 / 75%) 25%, rgb(0 0 0 / 25%) 60%, transparent 100%);
