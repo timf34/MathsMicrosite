@@ -338,3 +338,9 @@ dialog p {
   line-height: 1;
   color: #777;
 }
+
+.signature-explainer {
+  margin-top: 24px;
+  font-size: 1rem;
+  line-height: 1.5;
+}

@@ -44,6 +44,7 @@ const people = signatories.filter(person => person.visible).sort((a, b) => a.pri
         <noscript><p>Enable JavaScript to try the preview form. No signatures are being collected.</p></noscript>
       </form>
       <p id="preview-note">Preview only. Nothing is sent or saved.</p>
+      {site.explainerUrl && <p class="signature-explainer"><a href={site.explainerUrl}>Read the full explainer</a></p>}
       <ScrollMotif />
     </aside>
   </main>
