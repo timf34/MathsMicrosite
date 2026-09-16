@@ -382,28 +382,46 @@ dialog p {
 
 #signature-status.signature-success { margin-top: 8px; font-size: 1.125rem; line-height: 1.5; }
 
-.mobile-letter-nav { display: none; }
+/* Local preview: show the explainer shortcut on desktop as well. */
+.mobile-letter-nav {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 68px;
+  padding: 12px max(16px, calc((100vw - 1440px) / 2));
+  z-index: 10;
+  background-color: var(--preview-paper);
+  background-image: var(--preview-texture);
+  background-blend-mode: multiply;
+}
+.mobile-letter-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  color: #596063;
+  text-decoration: none;
+}
+.mobile-letter-nav + .page-shell { padding-top: 104px; }
 @media (max-width: 767px) {
-  .mobile-letter-nav {
-    display: flex;
-    align-items: center;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 68px;
-    padding: 12px 20px;
-    z-index: 10;
-    background-color: var(--preview-paper);
-    background-image: var(--preview-texture);
-    background-blend-mode: multiply;
-  }
-  .mobile-letter-nav a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-size: 13px;
-    color: #596063;
-    text-decoration: none;
-  }
+  .mobile-letter-nav { padding: 12px 20px; }
   .mobile-letter-nav + .page-shell { padding-top: 88px; }
 }
-@media print { .mobile-letter-nav { display: none; } }
+@media (min-width: 768px) {
+  .mobile-letter-nav {
+    position: absolute;
+    top: 24px;
+    height: 44px;
+    padding-top: 0;
+    padding-bottom: 0;
+    background: transparent;
+  }
+  .mobile-letter-nav a {
+    height: 44px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--preview-ink);
+  }
+}
+@media print { .mobile-letter-nav { display: none; } .mobile-letter-nav + .page-shell { padding-top: 0; } }
