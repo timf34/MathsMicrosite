@@ -121,7 +121,13 @@ form.addEventListener('submit', async event => {
     });
     const data = await response.json();
     if (!response.ok || data.ok !== true) throw new Error(data.error || 'We could not confirm your submission. Please try again.');
-    status.textContent = 'Thank you—your signature has been submitted for review.';
+    document.querySelector<HTMLElement>('#signature-entry')!.hidden = true;
+    const signatureSection = document.querySelector<HTMLElement>('#sign')!;
+    signatureSection.removeAttribute('aria-labelledby');
+    signatureSection.setAttribute('aria-label', 'Signature submitted');
+    status.textContent = 'Thank you, your signature has been submitted for review.';
+    status.classList.add('signature-success');
+    status.focus({ preventScroll: true });
     form.reset();
     submissionId = crypto.randomUUID();
     startedAt = Date.now();

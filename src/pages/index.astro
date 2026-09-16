@@ -36,6 +36,7 @@ import { site } from '../data/site';
       </section>
     </div>
     <aside id="sign" aria-labelledby="sign-title">
+      <div id="signature-entry">
       <h2 id="sign-title">Add your signature <span class="signature-integral" aria-hidden="true">∫</span></h2>
       <form id="signature-form" aria-describedby="preview-note">
         <fieldset disabled id="form-fields">
@@ -50,7 +51,8 @@ import { site } from '../data/site';
         <noscript><p>Please enable JavaScript to submit your signature.</p></noscript>
       </form>
       <p id="preview-note">Checking whether signing is open…</p>
-      <p id="signature-status" role="status" aria-live="polite"></p>
+      </div>
+      <p id="signature-status" role="status" aria-live="polite" tabindex="-1"></p>
       {site.explainerUrl && <p class="signature-explainer"><a href={site.explainerUrl}>Read the full explainer</a></p>}
       <ScrollMotif />
     </aside>

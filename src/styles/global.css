@@ -378,3 +378,5 @@ dialog p {
   #signatories-title { scroll-margin-top: 24px; }
 }
 @media print { .signatory-pagination { display: none !important; } }
+
+#signature-status.signature-success { margin-top: 8px; font-size: 1.125rem; line-height: 1.5; }
