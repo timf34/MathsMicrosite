@@ -30,7 +30,7 @@ const people = signatories.filter(person => person.visible).sort((a, b) => a.pri
       </section>
     </div>
     <aside id="sign" aria-labelledby="sign-title">
-      <h2 id="sign-title">Add your signature</h2>
+      <h2 id="sign-title">Add your signature <span class="signature-integral" aria-hidden="true">∫</span></h2>
       <form id="signature-form" aria-describedby="preview-note">
         <fieldset disabled id="form-fields">
           <label><span class="sr-only">First name (required)</span><input name="firstName" autocomplete="given-name" required maxlength="70" placeholder="First name*" /></label>
