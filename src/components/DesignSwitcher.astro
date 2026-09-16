@@ -1,3 +1,6 @@
+---
+const showMotifs = import.meta.env.DEV && Astro.url.pathname === '/';
+---
 <div id="design-switcher" hidden>
   <label for="design-choice">Try a style</label>
   <select id="design-choice">
@@ -6,19 +9,32 @@
     <option value="fine">White · fine lines</option>
     <option value="paper">Warm white · softer lines</option>
   </select>
+  {showMotifs && <div class="motif-options">
+    <label for="motif-choice">Graphic</label>
+    <select id="motif-choice">
+      <option value="sine">Sine wave</option>
+      <option value="geometry">Geometry</option>
+      <option value="cube">Wireframe cube</option>
+      <option value="graph">Growing graph</option>
+      <option value="none">None</option>
+    </select>
+  </div>}
   <button id="close-design-preview" type="button" aria-label="Exit style preview" title="Exit style preview">×</button>
 </div>
 <script>
   const themes = ['original', 'white', 'fine', 'paper'];
   const panel = document.querySelector<HTMLDivElement>('#design-switcher')!;
   const choice = document.querySelector<HTMLSelectElement>('#design-choice')!;
+  const motifChoice = document.querySelector<HTMLSelectElement>('#motif-choice');
+  if (motifChoice) choice.value = 'fine';
+  motifChoice?.addEventListener('change', () => document.dispatchEvent(new CustomEvent('motif-change', { detail: motifChoice.value })));
   const initial = new URL(window.location.href).searchParams.get('design');
 
   const applyDesign = (design: string | null) => {
     const previewing = design !== null && themes.includes(design);
     if (previewing) document.documentElement.dataset.design = design!;
     else delete document.documentElement.dataset.design;
-    panel.hidden = !previewing;
+    panel.hidden = !previewing && !motifChoice;
     if (previewing) choice.value = design!;
     const colour = design === 'original' ? '#f1f1f1' : design === 'paper' ? '#fffefa' : '#ffffff';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', colour);
@@ -44,6 +60,8 @@
   choice.addEventListener('change', () => selectDesign(choice.value));
   document.querySelector('#close-design-preview')!.addEventListener('click', () => {
     selectDesign(null);
+    panel.hidden = true;
+    document.dispatchEvent(new CustomEvent('motif-change', { detail: 'none' }));
     const title = document.querySelector<HTMLElement>('h1');
     title?.setAttribute('tabindex', '-1');
     title?.focus({ preventScroll: true });
@@ -70,10 +88,16 @@
     font: 14px/1.4 Helvetica, Arial, sans-serif;
   }
   #design-switcher[hidden] { display: none; }
+  .motif-options { display: flex; align-items: center; gap: 6px; border-left: 1px solid #ddd; padding-left: 12px; }
   label { white-space: nowrap; }
   select { min-width: 0; padding: 8px 24px 8px 10px; font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; }
   button { width: 32px; height: 32px; padding: 0; background: transparent; border: 0; font: 24px/1 Helvetica, Arial, sans-serif; color: #555; cursor: pointer; flex-shrink: 0; }
   select:focus-visible, button:focus-visible { outline: 2px solid #333; outline-offset: 2px; }
   @media(max-width: 440px) { #design-switcher { gap: 4px; padding-left: 14px; } label { font-size: 12px; } select { font-size: 13px; padding-left: 4px; padding-right: 4px; } }
+  @media(max-width: 700px) {
+    #design-switcher:has(.motif-options) { width: calc(100% - 24px); border-radius: 16px; flex-wrap: wrap; justify-content: center; gap: 2px 8px; }
+    .motif-options { border: 0; padding-left: 0; }
+    #design-switcher:has(.motif-options) > label { display: none; }
+  }
   @media print { #design-switcher { display: none; } }
 </style>

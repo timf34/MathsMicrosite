@@ -1,0 +1,108 @@
+---
+const wave = Array.from({ length: 161 }, (_, i) => {
+  const x = 20 + i * 1.25;
+  const y = 70 - 30 * Math.sin((i / 160) * Math.PI * 4);
+  return `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`;
+}).join(' ');
+const points = Array.from({ length: 17 }, (_, i) => ({
+  x: 25 + i * 12,
+  y: 112 - 82 / (1 + Math.exp(-(i - 8) / 2.4)),
+}));
+const graph = points.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ');
+---
+<div id="scroll-motif" aria-hidden="true" data-motif="sine" data-visible="false">
+  <svg viewBox="0 0 240 140" fill="none" focusable="false">
+    <g data-drawing="sine">
+      <path class="guide" d="M20 70H220" />
+      <path class="draw-line" d={wave} pathLength="100" />
+    </g>
+    <g data-drawing="geometry" hidden>
+      <circle class="construction-line" cx="120" cy="70" r="51" pathLength="100" />
+      <path class="construction-line" d="M76 95.5H164" pathLength="100" />
+      <path class="construction-line" d="M76 95.5 120 19 164 95.5" pathLength="100" />
+      <path class="construction-line construction-guide" d="M120 19V121M69 70H171" pathLength="100" />
+    </g>
+    <g data-drawing="cube" hidden><path id="cube-edges" /></g>
+    <g data-drawing="graph" hidden>
+      <path class="guide" d="M20 24V116H222" />
+      <path class="graph-line" d={graph} pathLength="100" />
+      {points.map(point => <circle class="graph-point" cx={point.x} cy={point.y} r="2" />)}
+    </g>
+  </svg>
+</div>
+<script>
+  const motif = document.querySelector<HTMLElement>('#scroll-motif');
+  if (motif) {
+    const section = document.querySelector<HTMLElement>('#signatories')!;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const modes = ['sine', 'geometry', 'cube', 'graph', 'none'];
+    let selected = 'sine';
+    let frame = 0;
+    const clamp = (n: number) => Math.min(1, Math.max(0, n));
+    const draw = (element: Element, progress: number) => {
+      element.setAttribute('stroke-dasharray', '100');
+      element.setAttribute('stroke-dashoffset', String(100 * (1 - clamp(progress))));
+      element.setAttribute('opacity', progress <= 0 ? '0' : '1');
+    };
+    const render = () => {
+      frame = 0;
+      const rect = section.getBoundingClientRect();
+      const progress = reducedMotion.matches ? 1 : clamp((window.innerHeight * 0.6 - rect.top) / Math.max(1, rect.height - window.innerHeight * 0.2));
+      motif.dataset.progress = progress.toFixed(3);
+      motif.hidden = selected === 'none';
+      motif.dataset.visible = String(rect.top < window.innerHeight - 48);
+      motif.dataset.motif = selected;
+      motif.querySelectorAll<SVGGElement>('[data-drawing]').forEach(group => {
+        group.toggleAttribute('hidden', group.dataset.drawing !== selected);
+      });
+      if (selected === 'sine') draw(motif.querySelector('.draw-line')!, 0.06 + 0.94 * progress);
+      if (selected === 'geometry') {
+        motif.querySelectorAll('.construction-line').forEach((line, i) => draw(line, progress * 4 - i));
+      }
+      if (selected === 'graph') {
+        draw(motif.querySelector('.graph-line')!, progress);
+        motif.querySelectorAll('.graph-point').forEach((point, i) => point.setAttribute('opacity', String(clamp(progress * 17 - i))));
+      }
+      if (selected === 'cube') {
+        const angle = reducedMotion.matches ? 0.6 : 0.35 + progress * Math.PI * 0.8;
+        const vertices = Array.from({ length: 8 }, (_, i) => {
+          const x = i & 1 ? 1 : -1;
+          const y = i & 2 ? 1 : -1;
+          const z = i & 4 ? 1 : -1;
+          const rx = x * Math.cos(angle) + z * Math.sin(angle);
+          const rz = -x * Math.sin(angle) + z * Math.cos(angle);
+          return [120 + rx * 31, 70 + (y * Math.cos(0.45) - rz * Math.sin(0.45)) * 31];
+        });
+        let edges = '';
+        vertices.forEach((v, i) => [1, 2, 4].forEach(bit => {
+          if (!(i & bit)) edges += `M${v.join(',')}L${vertices[i | bit].join(',')} `;
+        }));
+        motif.querySelector('#cube-edges')!.setAttribute('d', edges);
+      }
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(render); };
+    document.addEventListener('motif-change', event => {
+      const mode = (event as CustomEvent<string>).detail;
+      if (modes.includes(mode)) { selected = mode; schedule(); }
+    });
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    window.addEventListener('pageshow', schedule);
+    reducedMotion.addEventListener('change', schedule);
+    new ResizeObserver(schedule).observe(section);
+    render();
+  }
+</script>
+<style>
+  #scroll-motif { width: 180px; height: 105px; margin: 44px auto 0; color: #aaa; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 800ms ease-out, visibility 800ms; }
+  #scroll-motif[data-visible="true"] { opacity: 1; visibility: visible; }
+  @media(prefers-reduced-motion: reduce) { #scroll-motif { transition: none; } }
+  #scroll-motif[hidden], [data-drawing][hidden] { display: none; }
+  svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  path, circle { stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+  .guide { stroke: #e7e7e7; stroke-width: 1; }
+  .construction-guide { stroke: #bcbcbc; }
+  .graph-point { fill: currentColor; stroke: none; }
+  @media(max-height: 700px) and (min-width: 768px) { #scroll-motif { margin-top: 20px; width: 145px; height: 85px; } }
+  @media print { #scroll-motif { display: none; } }
+</style>
