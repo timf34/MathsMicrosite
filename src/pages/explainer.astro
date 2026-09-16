@@ -21,7 +21,45 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
 <script>
   const menu = document.querySelector<HTMLDetailsElement>('#essay-menu')!;
   const trigger = menu.querySelector('summary')!;
-  menu.querySelectorAll<HTMLAnchorElement>('a').forEach(link => {
+  const links = [...menu.querySelectorAll<HTMLAnchorElement>('a')];
+  const sections = links.map(link => ({
+    link,
+    heading: document.getElementById(decodeURIComponent(link.hash.slice(1))),
+  })).filter(section => section.heading !== null);
+
+  // Keep the last heading passed at the reading line active between sections.
+  const updateCurrentSection = () => {
+    const readingLine = Math.max(100, window.innerHeight * 0.25);
+    let current: HTMLAnchorElement | undefined;
+    for (const section of sections) {
+      if (section.heading!.getBoundingClientRect().top <= readingLine) current = section.link;
+      else break;
+    }
+    if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) {
+      current = sections.at(-1)?.link;
+    }
+    links.forEach(link => {
+      if (link === current) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  let scrollFrame = 0;
+  const scheduleUpdate = () => {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(() => {
+      scrollFrame = 0;
+      updateCurrentSection();
+    });
+  };
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', scheduleUpdate);
+  window.addEventListener('hashchange', scheduleUpdate);
+  window.addEventListener('pageshow', scheduleUpdate);
+  // Images and font loading can move headings after the initial render.
+  new ResizeObserver(scheduleUpdate).observe(document.querySelector('.essay-body')!);
+  updateCurrentSection();
+
+  links.forEach(link => {
     link.addEventListener('click', () => {
       menu.open = false;
       const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
@@ -48,11 +86,17 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .burger { display: flex; flex-direction: column; gap: 5px; }
   .burger span { width: 23px; height: 2px; background: currentColor; }
   .essay-home { font-size: 36px; font-weight: 300; line-height: 1; }
-  .essay-menu nav { position: absolute; top: 56px; left: 0; background: #f1f1f1; border: 1px solid #000; width: min(380px, calc(100vw - 48px)); padding: 12px 24px; max-height: calc(100dvh - 112px); overflow: auto; }
+  .essay-menu nav { position: absolute; top: 56px; left: 0; background: #f1f1f1; width: min(340px, calc(100vw - 48px)); padding: 8px 12px; max-height: calc(100dvh - 112px); overflow: auto; }
   .essay-menu ul { list-style: none; padding: 0; margin: 0; }
-  .essay-menu li + li { border-top: 1px solid #ccc; }
-  .essay-menu a { display: block; padding: 14px 0; font-size: 16px; line-height: 1.4; text-decoration: none; }
-  .essay-menu a:hover { text-decoration: underline; }
+  .essay-menu a { display: block; padding: 10px 0; font-size: 16px; line-height: 1.45; text-decoration: none; color: #555; }
+  .essay-menu a:hover { color: #000; }
+  .essay-menu a[aria-current="location"] { font-weight: 700; color: #000; }
+  .essay-menu[open] nav { animation: menu-appear 220ms ease-out; }
+  @keyframes menu-appear { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .essay-menu[open] nav { animation: none; } }
+  @media (min-width: 1280px) {
+    .essay-menu nav { width: min(300px, calc((100vw - 720px) / 2 - 48px)); }
+  }
   .essay-main { width: min(720px, calc(100% - 48px)); margin: 0 auto; padding: 100px 0 80px; }
   .essay-body { margin: 0; overflow-wrap: break-word; }
   .essay-body h1 { font: 400 3.25rem/1.15 var(--serif); margin: 0 0 48px; text-wrap: balance; }
