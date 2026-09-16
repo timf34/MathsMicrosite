@@ -18,7 +18,7 @@ import DesignSwitcher from '../components/DesignSwitcher.astro';
     <title>{title}</title>
     <script is:inline>
       const previewDesign = new URL(window.location.href).searchParams.get('design');
-      if (['original', 'white', 'paper'].includes(previewDesign)) {
+      if (['original', 'white', 'fine', 'serif', 'paper'].includes(previewDesign)) {
         document.documentElement.dataset.design = previewDesign;
       }
     </script>

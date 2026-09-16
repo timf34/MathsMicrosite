@@ -3,12 +3,14 @@
   <select id="design-choice">
     <option value="original">Original grey</option>
     <option value="white">Crisp white</option>
+    <option value="fine">White · fine lines</option>
+    <option value="serif">White · serif + fine lines</option>
     <option value="paper">Warm white · softer lines</option>
   </select>
   <button id="close-design-preview" type="button" aria-label="Exit style preview" title="Exit style preview">×</button>
 </div>
 <script>
-  const themes = ['original', 'white', 'paper'];
+  const themes = ['original', 'white', 'fine', 'serif', 'paper'];
   const panel = document.querySelector<HTMLDivElement>('#design-switcher')!;
   const choice = document.querySelector<HTMLSelectElement>('#design-choice')!;
   const initial = new URL(window.location.href).searchParams.get('design');
@@ -19,7 +21,7 @@
     else delete document.documentElement.dataset.design;
     panel.hidden = !previewing;
     if (previewing) choice.value = design!;
-    const colour = design === 'white' ? '#ffffff' : design === 'paper' ? '#fffefa' : '#f1f1f1';
+    const colour = ['white', 'fine', 'serif'].includes(design ?? '') ? '#ffffff' : design === 'paper' ? '#fffefa' : '#f1f1f1';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', colour);
     // Carry the preview between the letter and essay, without changing section links.
     document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
