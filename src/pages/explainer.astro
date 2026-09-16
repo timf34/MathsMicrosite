@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Content, getHeadings } from './Maths curriculum.md';
+const headings = getHeadings().filter(heading => heading.depth > 1 && heading.slug !== 'footnote-label');
+---
+<Layout title="Ireland is about to destroy senior maths education — Maths Matters">
+  <a class="skip-link" href="#essay">Skip to the essay</a>
+  <div class="essay-controls">
+    <details class="essay-menu" id="essay-menu">
+      <summary aria-label="Essay sections" title="Essay sections"><span class="burger" aria-hidden="true"><span></span><span></span><span></span></span></summary>
+      <nav aria-label="Essay sections">
+        <ul>{headings.map(heading => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}<li><a href="#footnote-label">Footnotes</a></li></ul>
+      </nav>
+    </details>
+    <a class="essay-home" href="/" aria-label="Close essay and return to the open letter" title="Return to the open letter">×</a>
+  </div>
+  <main class="essay-main" id="essay">
+    <article class="essay-body"><Content /></article>
+  </main>
+</Layout>
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('#essay-menu')!;
+  const trigger = menu.querySelector('summary')!;
+  menu.querySelectorAll<HTMLAnchorElement>('a').forEach(link => {
+    link.addEventListener('click', () => {
+      menu.open = false;
+      const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      }
+    });
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && menu.open) { menu.open = false; trigger.focus(); }
+  });
+  document.addEventListener('click', event => {
+    if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
+  });
+</script>
+<style is:global>
+  .essay-controls { position: fixed; top: 24px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: start; z-index: 10; pointer-events: none; }
+  .essay-controls > * { pointer-events: auto; }
+  .essay-menu summary, .essay-home { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #000; background: #f1f1f1; cursor: pointer; text-decoration: none; }
+  .essay-menu summary { list-style: none; }
+  .essay-menu summary::-webkit-details-marker { display: none; }
+  .essay-menu summary:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
+  .burger { display: flex; flex-direction: column; gap: 5px; }
+  .burger span { width: 23px; height: 2px; background: currentColor; }
+  .essay-home { font-size: 36px; font-weight: 300; line-height: 1; }
+  .essay-menu nav { position: absolute; top: 56px; left: 0; background: #f1f1f1; border: 1px solid #000; width: min(380px, calc(100vw - 48px)); padding: 12px 24px; max-height: calc(100dvh - 112px); overflow: auto; }
+  .essay-menu ul { list-style: none; padding: 0; margin: 0; }
+  .essay-menu li + li { border-top: 1px solid #ccc; }
+  .essay-menu a { display: block; padding: 14px 0; font-size: 16px; line-height: 1.4; text-decoration: none; }
+  .essay-menu a:hover { text-decoration: underline; }
+  .essay-main { width: min(720px, calc(100% - 48px)); margin: 0 auto; padding: 100px 0 80px; }
+  .essay-body { margin: 0; overflow-wrap: break-word; }
+  .essay-body h1 { font: 400 3.25rem/1.15 var(--serif); margin: 0 0 48px; text-wrap: balance; }
+  .essay-body p, .essay-body li { font: 400 1.25rem/1.65 var(--serif); }
+  .essay-body p { margin: 24px 0; }
+  .essay-body h2, .essay-body h3 { font: 400 2rem/1.25 var(--serif); margin: 64px 0 24px; scroll-margin-top: 88px; }
+  .essay-body ul, .essay-body ol { padding-left: 1.5em; }
+  .essay-body li { margin: 16px 0; padding-left: .25em; }
+  .essay-body li p { margin: 12px 0; }
+  .essay-body img { display: block; max-width: 100%; height: auto; margin: 32px auto; }
+  .essay-body blockquote { margin: 32px 0; padding-left: 24px; border-left: 2px solid #000; }
+  .essay-body :target { scroll-margin-top: 88px; }
+  .essay-body [data-footnotes] { border-top: 1px solid #999; margin-top: 64px; padding-top: 16px; }
+  .essay-body [data-footnotes] p, .essay-body [data-footnotes] li { font-size: 1rem; }
+  .essay-body [data-footnotes] h2 { position: static; width: auto; height: auto; clip: auto; clip-path: none; overflow: visible; margin: 24px 0; font-size: 1.5rem; }
+  @media(max-width: 767px) {
+    .essay-controls { top: 12px; left: 12px; right: 12px; }
+    .essay-main { width: calc(100% - 40px); padding-top: 88px; }
+    .essay-body h1 { font-size: 2.5rem; margin-bottom: 32px; }
+    .essay-body p, .essay-body li { font-size: 1.125rem; }
+    .essay-body h2, .essay-body h3 { font-size: 1.75rem; margin-top: 48px; }
+  }
+  @media print { .essay-controls { display: none; } .essay-main { width: 100%; padding: 0; } }
+</style>

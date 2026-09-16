@@ -1,11 +1,75 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { site, signatories } from '../data/site';
+const people = signatories.filter(person => person.visible).sort((a, b) => a.priority - b.priority || a.name.localeCompare(b.name, 'en-IE'));
 ---
-
 <Layout>
-	<Welcome />
+  <a class="skip-link" href="#letter">Skip to the letter</a>
+  <main class="page-shell">
+    <div class="content-column">
+      <h1>A better standard for Leaving Cert maths</h1>
+      <article id="letter" aria-labelledby="letter-title">
+          <h2 id="letter-title" class="letter-lead">If the person who wrote the draft spec had to sit the current Leaving Cert maths exam, they would fail.</h2>
+          <p><em>The maths in this maths specification is wrong.</em> The specification contains numerous inaccurate descriptions, false claims, mathematical mistakes, etc. It also contains symbols that aren’t taught on the specification itself, and will be meaningless to students.</p>
+          <p>The NCCA says these are just ordinary errors, of the kind that always creep into documents like these, and they would have been caught and fixed through the consultation process. But at least three different experts raised these errors with the NCCA, and they were never corrected.</p>
+          <p>It is not clear if this was just ordinary incompetence, or if the NCCA believed it was acceptable to teach students error-riddled mathematics so long as it was simpler and more ‘appropriate’.</p>
+          <h3>The draft strips out content without replacing it with anything.</h3>
+          <p>Thanks to the backlash, we expect the NCCA will fix the most blatant errors. But the basic structure of the spec will probably remain the same, unless something is done about it at the ministerial level.</p>
+          <p>The most important topics of the old curriculum—most geometry, much trigonometry, all proofs by induction, all complex numbers—have been removed or dumbed-down, with nothing new to replace them and no additional depth for the topics that remain.</p>
+          <h3>The new assessment style does not work for mathematics.</h3>
+          <p>40% of the grade, including the whole statistics grade, now comes in the form of a non-exam ‘Investigating with Mathematics’ assessment. It will be graded on a qualitative basis in terms of vaguely-defined aptitudes, rather than via rigourous qualitative metrics that evaluate genuine mathematical ability.</p>
+          <p>NCCA received ministerial direction on this.</p>
+          <p class="letter-closing">See signatories against this below.</p>
+
+        <p class="explainer">{site.explainerUrl ? <a href={site.explainerUrl}>Read the full explainer</a> : <span>Full explainer coming soon.</span>}</p>
+      </article>
+      <section id="signatories" aria-labelledby="signatories-title">
+        <h2 id="signatories-title">{people.length} example signatories</h2>
+        <p class="placeholder-notice">Design placeholders only. These people have not signed or endorsed this letter.</p>
+        <ul class="people-list">{people.map(person => <li><h3>{person.name}</h3><p>{person.description}</p></li>)}</ul>
+      </section>
+    </div>
+    <aside id="sign" aria-labelledby="sign-title">
+      <h2 id="sign-title">Add your signature</h2>
+      <form id="signature-form" aria-describedby="preview-note">
+        <fieldset disabled id="form-fields">
+          <label><span class="sr-only">First name (required)</span><input name="firstName" autocomplete="given-name" required maxlength="70" placeholder="First name*" /></label>
+          <label><span class="sr-only">Last name (required)</span><input name="lastName" autocomplete="family-name" required maxlength="70" placeholder="Last name*" /></label>
+          <label><span class="sr-only">Email (required)</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="Email*" /></label>
+          <label><span class="sr-only">Role or title (optional)</span><input name="role" maxlength="100" placeholder="Role or title" /></label>
+          <button class="primary-button" type="submit">Sign</button>
+        </fieldset>
+        <noscript><p>Enable JavaScript to try the preview form. No signatures are being collected.</p></noscript>
+      </form>
+      <p id="preview-note">Preview only. Nothing is sent or saved.</p>
+    </aside>
+  </main>
+  <dialog id="signature-preview" aria-labelledby="preview-title">
+    <button class="close-dialog" aria-label="Close preview" type="button">×</button>
+    <h2 id="preview-title">Your signature preview</h2>
+    <div class="preview-person"><h3 id="preview-name"></h3><p id="preview-role"></p></div>
+    <p>No signature has been submitted. Your details have not been sent or saved.</p>
+    <button class="primary-button close-preview" type="button">Back to the letter</button>
+  </dialog>
 </Layout>
+<script>
+  const form = document.querySelector<HTMLFormElement>('#signature-form')!;
+  const dialog = document.querySelector<HTMLDialogElement>('#signature-preview')!;
+  document.querySelector<HTMLFieldSetElement>('#form-fields')!.disabled = false;
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const first = String(data.get('firstName') ?? '').trim();
+    const last = String(data.get('lastName') ?? '').trim();
+    for (const [key, value] of [['firstName', first], ['lastName', last]]) {
+      const input = form.elements.namedItem(key) as HTMLInputElement;
+      input.setCustomValidity(value ? '' : 'Please enter your name.');
+    }
+    if (!form.reportValidity()) return;
+    document.querySelector('#preview-name')!.textContent = `${first} ${last}`;
+    document.querySelector('#preview-role')!.textContent = String(data.get('role') ?? '').trim() || 'Individual signatory';
+    dialog.showModal();
+  });
+  form.addEventListener('input', event => { if (event.target instanceof HTMLInputElement) event.target.setCustomValidity(''); });
+  document.querySelectorAll('.close-dialog, .close-preview').forEach(button => button.addEventListener('click', () => dialog.close()));
+</script>
