@@ -27,7 +27,7 @@ const people = signatories.filter(person => person.visible).sort((a, b) => a.pri
       <section id="signatories" aria-labelledby="signatories-title">
         <h2 id="signatories-title">{people.length} example signatories</h2>
         <p class="placeholder-notice">Design placeholders only. These people have not signed or endorsed this letter.</p>
-        <ul class="people-list">{people.map(person => <li><div class="signatory-divider" aria-hidden="true"><span>∴</span></div><h3>{person.name}</h3><p>{person.description}</p></li>)}</ul>
+        <ul class="people-list">{people.map(person => <li><h3>{person.name}</h3><p>{person.description}</p></li>)}</ul>
       </section>
     </div>
     <aside id="sign" aria-labelledby="sign-title">
