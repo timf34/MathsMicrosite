@@ -9,10 +9,11 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
     <details class="essay-menu" id="essay-menu">
       <summary aria-label="Open section menu" title="Open section menu"><span class="burger" aria-hidden="true"><span></span><span></span><span></span></span></summary>
       <nav aria-label="Essay sections">
+        <a class="menu-home" href="/">← Back to the open letter</a>
         <ul>{headings.map(heading => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}<li><a href="#footnote-label">Footnotes</a></li></ul>
       </nav>
     </details>
-    <a class="essay-home" href="/" aria-label="Close essay and return to the open letter" title="Return to the open letter">×</a>
+    <a class="essay-home" href="/" aria-label="Back to the open letter">← Open letter</a>
   </div>
   <main class="essay-main" id="essay">
     <article class="essay-body"><Content /></article>
@@ -21,7 +22,7 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
 <script>
   const menu = document.querySelector<HTMLDetailsElement>('#essay-menu')!;
   const trigger = menu.querySelector('summary')!;
-  const links = [...menu.querySelectorAll<HTMLAnchorElement>('a')];
+  const links = [...menu.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
   const sections = links.map(link => ({
     link,
     heading: document.getElementById(decodeURIComponent(link.hash.slice(1))),
@@ -73,7 +74,7 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
 <style is:global>
   .essay-controls { position: fixed; top: 24px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: start; z-index: 10; pointer-events: none; }
   .essay-controls > * { pointer-events: auto; }
-  .essay-menu summary, .essay-home { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--preview-ink); background: transparent; cursor: pointer; text-decoration: none; }
+  .essay-menu summary, .essay-home { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--preview-ink); background-color: var(--preview-paper); background-image: var(--preview-texture); background-blend-mode: multiply; cursor: pointer; text-decoration: none; }
   .essay-menu summary { list-style: none; }
   .essay-menu summary::-webkit-details-marker { display: none; }
   .essay-menu summary:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
@@ -82,7 +83,8 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-menu[open] .burger span:first-child { transform: translateY(7px) rotate(45deg); }
   .essay-menu[open] .burger span:nth-child(2) { opacity: 0; }
   .essay-menu[open] .burger span:last-child { transform: translateY(-7px) rotate(-45deg); }
-  .essay-home { font-size: 36px; font-weight: 300; line-height: 1; }
+  .essay-home { width: auto; padding: 0 12px; font-size: 15px; line-height: 1.4; }
+  .essay-menu .menu-home { display: none; }
   .essay-menu nav { position: absolute; top: 56px; left: 0; background-color: var(--preview-paper); background-image: var(--preview-texture); background-blend-mode: multiply; width: min(340px, calc(100vw - 48px)); padding: 8px 12px; max-height: calc(100dvh - 112px); overflow: auto; }
   .essay-menu ul { list-style: none; padding: 0; margin: 0; }
   .essay-menu a { display: block; padding: 10px 0; font-size: 16px; line-height: 1.45; text-decoration: none; color: #555; }
@@ -110,7 +112,22 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-body [data-footnotes] p, .essay-body [data-footnotes] li { font-size: 1rem; }
   .essay-body [data-footnotes] h2 { position: static; width: auto; height: auto; clip: auto; clip-path: none; overflow: visible; margin: 24px 0; font-size: 1.5rem; }
   @media(max-width: 767px) {
-    .essay-controls { top: 12px; left: 12px; right: 12px; }
+    .essay-controls {
+      top: 0; left: 0; right: 0; height: 68px; padding: 12px;
+      justify-content: flex-end;
+      background-color: var(--preview-paper);
+      background-image: var(--preview-texture);
+      background-blend-mode: multiply;
+    }
+    .essay-home { display: none; }
+    .essay-menu nav {
+      position: fixed; top: 68px; bottom: 0; left: 0; right: 0;
+      width: auto; max-height: none;
+      padding: 12px 24px max(24px, env(safe-area-inset-bottom));
+      overscroll-behavior: contain;
+    }
+    .essay-menu .menu-home { display: block; margin-bottom: 20px; color: var(--preview-ink); }
+    .essay-menu a { padding: 12px 0; }
     .essay-main { width: calc(100% - 40px); padding-top: 88px; }
     .essay-body h1 { font-size: 2.5rem; margin-bottom: 32px; }
     .essay-body p, .essay-body li { font-size: 1.125rem; }
