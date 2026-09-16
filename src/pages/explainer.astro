@@ -7,7 +7,7 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   <a class="skip-link" href="#essay">Skip to the essay</a>
   <div class="essay-controls">
     <details class="essay-menu" id="essay-menu">
-      <summary aria-label="Essay sections" title="Essay sections"><span class="burger" aria-hidden="true"><span></span><span></span><span></span></span></summary>
+      <summary aria-label="Open section menu" title="Open section menu"><span class="burger" aria-hidden="true"><span></span><span></span><span></span></span></summary>
       <nav aria-label="Essay sections">
         <ul>{headings.map(heading => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}<li><a href="#footnote-label">Footnotes</a></li></ul>
       </nav>
@@ -59,21 +59,15 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   new ResizeObserver(scheduleUpdate).observe(document.querySelector('.essay-body')!);
   updateCurrentSection();
 
-  links.forEach(link => {
-    link.addEventListener('click', () => {
-      menu.open = false;
-      const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
-      if (target) {
-        target.setAttribute('tabindex', '-1');
-        target.focus({ preventScroll: true });
-      }
-    });
-  });
+  const updateMenuLabel = () => {
+    const label = menu.open ? 'Close section menu' : 'Open section menu';
+    trigger.setAttribute('aria-label', label);
+    trigger.setAttribute('title', label);
+  };
+  menu.addEventListener('toggle', updateMenuLabel);
+  updateMenuLabel();
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && menu.open) { menu.open = false; trigger.focus(); }
-  });
-  document.addEventListener('click', event => {
-    if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
   });
 </script>
 <style is:global>
@@ -84,7 +78,10 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-menu summary::-webkit-details-marker { display: none; }
   .essay-menu summary:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
   .burger { display: flex; flex-direction: column; gap: 5px; }
-  .burger span { width: 23px; height: 2px; background: currentColor; }
+  .burger span { width: 23px; height: 2px; background: currentColor; transition: transform 180ms ease, opacity 180ms ease; }
+  .essay-menu[open] .burger span:first-child { transform: translateY(7px) rotate(45deg); }
+  .essay-menu[open] .burger span:nth-child(2) { opacity: 0; }
+  .essay-menu[open] .burger span:last-child { transform: translateY(-7px) rotate(-45deg); }
   .essay-home { font-size: 36px; font-weight: 300; line-height: 1; }
   .essay-menu nav { position: absolute; top: 56px; left: 0; background: #f1f1f1; width: min(340px, calc(100vw - 48px)); padding: 8px 12px; max-height: calc(100dvh - 112px); overflow: auto; }
   .essay-menu ul { list-style: none; padding: 0; margin: 0; }
@@ -93,7 +90,7 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-menu a[aria-current="location"] { font-weight: 700; color: #000; }
   .essay-menu[open] nav { animation: menu-appear 220ms ease-out; }
   @keyframes menu-appear { from { opacity: 0; } to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .essay-menu[open] nav { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .essay-menu[open] nav { animation: none; } .burger span { transition: none; } }
   @media (min-width: 1280px) {
     .essay-menu nav { width: min(300px, calc((100vw - 720px) / 2 - 48px)); }
   }
