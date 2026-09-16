@@ -4,13 +4,12 @@
     <option value="original">Original grey</option>
     <option value="white">Crisp white</option>
     <option value="fine">White · fine lines</option>
-    <option value="serif">White · serif + fine lines</option>
     <option value="paper">Warm white · softer lines</option>
   </select>
   <button id="close-design-preview" type="button" aria-label="Exit style preview" title="Exit style preview">×</button>
 </div>
 <script>
-  const themes = ['original', 'white', 'fine', 'serif', 'paper'];
+  const themes = ['original', 'white', 'fine', 'paper'];
   const panel = document.querySelector<HTMLDivElement>('#design-switcher')!;
   const choice = document.querySelector<HTMLSelectElement>('#design-choice')!;
   const initial = new URL(window.location.href).searchParams.get('design');
@@ -40,7 +39,8 @@
     history.replaceState(null, '', url);
     applyDesign(design);
   };
-  applyDesign(initial);
+  if (initial === 'serif') selectDesign('fine');
+  else applyDesign(initial);
   choice.addEventListener('change', () => selectDesign(choice.value));
   document.querySelector('#close-design-preview')!.addEventListener('click', () => {
     selectDesign(null);

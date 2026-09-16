@@ -1,5 +1,5 @@
 /* Optional design previews; the default site is unchanged. */
-:root:is([data-design="white"], [data-design="fine"], [data-design="serif"]) {
+:root:is([data-design="white"], [data-design="fine"]) {
   --preview-paper: #fff;
   --preview-ink: #111;
   --preview-rule: #222;
@@ -9,25 +9,25 @@
   --preview-ink: #292824;
   --preview-rule: #79766d;
 }
-:root:is([data-design="white"], [data-design="fine"], [data-design="serif"]),
+:root:is([data-design="white"], [data-design="fine"]),
 :root[data-design="paper"] {
   background: var(--preview-paper);
   color: var(--preview-ink);
 }
-:root:is([data-design="white"], [data-design="fine"], [data-design="serif"]) :is(.essay-menu summary, .essay-home, .essay-menu nav, dialog),
+:root:is([data-design="white"], [data-design="fine"]) :is(.essay-menu summary, .essay-home, .essay-menu nav, dialog),
 :root[data-design="paper"] :is(.essay-menu summary, .essay-home, .essay-menu nav, dialog) {
   background: var(--preview-paper);
   color: var(--preview-ink);
 }
-:root:is([data-design="white"], [data-design="fine"], [data-design="serif"]) :is(input, input::placeholder),
+:root:is([data-design="white"], [data-design="fine"]) :is(input, input::placeholder),
 :root[data-design="paper"] :is(input, input::placeholder) {
   color: var(--preview-ink);
 }
-:root:is([data-design="white"], [data-design="fine"], [data-design="serif"]) :is(#sign, input, .people-list li),
-:root[data-design="paper"] :is(#sign, input, .people-list li) {
+:root:is([data-design="white"], [data-design="fine"]) :is(#sign, input),
+:root[data-design="paper"] :is(#sign, input) {
   border-color: var(--preview-rule);
 }
-:root[data-design="paper"] :is(#sign, input, .people-list li) {
+:root[data-design="paper"] :is(#sign, input) {
   border-width: 1px;
 }
 :root[data-design="paper"] .primary-button {
@@ -41,9 +41,9 @@
 :root[data-design] body { padding-bottom: 76px; }
 @media print { :root[data-design] body { padding-bottom: 0; } }
 
-:root:is([data-design="fine"], [data-design="serif"]) :is(#sign, input, .people-list li) {
+:root:is([data-design="fine"]) :is(#sign, input) {
   border-width: 1px;
 }
-:root[data-design="serif"] #letter p {
-  font-family: var(--serif);
+:root:is([data-design="fine"], [data-design="paper"]) {
+  --signatory-rule-width: 1px;
 }

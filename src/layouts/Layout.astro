@@ -17,8 +17,9 @@ import DesignSwitcher from '../components/DesignSwitcher.astro';
     <meta name="theme-color" content="#f1f1f1" />
     <title>{title}</title>
     <script is:inline>
-      const previewDesign = new URL(window.location.href).searchParams.get('design');
-      if (['original', 'white', 'fine', 'serif', 'paper'].includes(previewDesign)) {
+      const requestedDesign = new URL(window.location.href).searchParams.get('design');
+      const previewDesign = requestedDesign === 'serif' ? 'fine' : requestedDesign;
+      if (['original', 'white', 'fine', 'paper'].includes(previewDesign)) {
         document.documentElement.dataset.design = previewDesign;
       }
     </script>
