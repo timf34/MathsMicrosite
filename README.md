@@ -19,7 +19,7 @@ Open `/?design=white` for the temporary style switcher. Compare original grey, c
 
 ## Current scope
 
-This is a design-first prototype. All six political names are explicitly labelled examples, not endorsements. The signing form validates input and displays a private preview; it does not send, store, or add any information to the signatory list. No database, live submission endpoint, admin login, or anti-bot service is connected. JavaScript is required for the form preview. The preview is marked noindex until real content and consenting signatories are ready.
+This is a design-first prototype. The six political names are explicitly labelled examples, not endorsements. Another 30 fictional placeholders demonstrate a longer scrolling list. The signing form validates input and displays a private preview; it does not send, store, or add any information to the signatory list. No database, live submission endpoint, admin login, or anti-bot service is connected. JavaScript is required for the form preview. The preview is marked noindex until real content and consenting signatories are ready.
 
 The supplied letter is retained, including “rigourous qualitative metrics”; confirm whether “rigorous quantitative metrics” was intended before launch.
 
