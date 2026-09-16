@@ -17,6 +17,7 @@ import DesignSwitcher from '../components/DesignSwitcher.astro';
     <meta name="theme-color" content="#fafbf8" />
     <title>{title}</title>
     <script is:inline>
+      console.info("Designed and built by Tim Farrelly: https://www.timfarrelly.com/");
       const requestedDesign = new URL(window.location.href).searchParams.get('design');
       const previewDesign = requestedDesign === 'serif' ? 'fine' : requestedDesign;
       if (['original', 'white', 'fine', 'paper', 'textured'].includes(previewDesign)) {
