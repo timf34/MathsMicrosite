@@ -7,6 +7,49 @@ const list = document.querySelector<HTMLUListElement>('#public-signatories')!;
 const heading = document.querySelector<HTMLElement>('#signatories-title')!;
 const listStatus = document.querySelector<HTMLElement>('#signatories-status')!;
 const retry = document.querySelector<HTMLButtonElement>('#retry-signatories')!;
+const pagination = document.querySelector<HTMLElement>('#signatory-pagination')!;
+const previousPage = document.querySelector<HTMLButtonElement>('#signatories-previous')!;
+const nextPage = document.querySelector<HTMLButtonElement>('#signatories-next')!;
+const pageLabel = document.querySelector<HTMLElement>('#signatories-page')!;
+const mobileLayout = window.matchMedia('(max-width: 767px)');
+const pageSize = 6;
+let people: Array<{ name: string; role: string }> = [];
+let page = 0;
+
+function renderSignatories() {
+  const pageCount = Math.max(1, Math.ceil(people.length / pageSize));
+  page = Math.min(page, pageCount - 1);
+  const visiblePeople = mobileLayout.matches ? people.slice(page * pageSize, (page + 1) * pageSize) : people;
+  const fragment = document.createDocumentFragment();
+  visiblePeople.forEach(person => {
+    const item = document.createElement('li');
+    const name = document.createElement('h3');
+    name.textContent = person.name;
+    item.append(name);
+    if (person.role) {
+      const role = document.createElement('p');
+      role.textContent = person.role;
+      item.append(role);
+    }
+    fragment.append(item);
+  });
+  list.replaceChildren(fragment);
+  pagination.hidden = !mobileLayout.matches || pageCount <= 1;
+  previousPage.disabled = page === 0;
+  nextPage.disabled = page === pageCount - 1;
+  pageLabel.textContent = `Page ${page + 1} of ${pageCount}`;
+}
+
+function changePage(direction: number) {
+  page = Math.max(0, page + direction);
+  renderSignatories();
+  heading.focus({ preventScroll: true });
+  heading.scrollIntoView({ block: 'start' });
+}
+previousPage.addEventListener('click', () => changePage(-1));
+nextPage.addEventListener('click', () => changePage(1));
+mobileLayout.addEventListener('change', renderSignatories);
+
 let configured = false;
 let submitting = false;
 let loading = false;
@@ -29,27 +72,17 @@ async function loadSignatories() {
       ? 'Your email stays private. Every signature is reviewed before publication.'
       : 'Signing opens soon. No signatures are being collected yet.';
     if (configured) {
-      const people = data.signatories as Array<{ name: string; role: string }>;
-      if (!people.every(person => typeof person.name === 'string' && typeof person.role === 'string')) throw new Error('Invalid names');
-      const fragment = document.createDocumentFragment();
-      people.forEach(person => {
-        const item = document.createElement('li');
-        const name = document.createElement('h3');
-        name.textContent = person.name;
-        item.append(name);
-        if (person.role) {
-          const role = document.createElement('p');
-          role.textContent = person.role;
-          item.append(role);
-        }
-        fragment.append(item);
-      });
-      list.replaceChildren(fragment);
+      const updatedPeople = data.signatories as Array<{ name: string; role: string }>;
+      if (!updatedPeople.every(person => typeof person.name === 'string' && typeof person.role === 'string')) throw new Error('Invalid names');
+      people = updatedPeople;
+      renderSignatories();
       heading.textContent = `${people.length} ${people.length === 1 ? 'signatory' : 'signatories'}`;
       listStatus.textContent = people.length ? '' : 'Be among the first to sign. Names will appear here after review.';
       hasList = true;
     } else {
-      list.replaceChildren();
+      people = [];
+      page = 0;
+      renderSignatories();
       heading.textContent = 'Signatories';
       listStatus.textContent = 'Approved signatures will appear here once signing opens.';
     }

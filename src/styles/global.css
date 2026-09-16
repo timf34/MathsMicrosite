@@ -353,3 +353,29 @@ dialog p {
 .primary-button:disabled, fieldset:disabled .primary-button { opacity: .45; cursor: not-allowed; }
 .retry-link { margin-top: 12px; background: none; border: 0; padding: 4px 0; text-decoration: underline; cursor: pointer; font: inherit; }
 .retry-link[hidden] { display: none; }
+
+.signatory-pagination { display: none; }
+@media (max-width: 767px) {
+  .signatory-pagination:not([hidden]) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+    font-size: 0.875rem;
+  }
+  .signatory-pagination button {
+    min-height: 44px;
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+  .signatory-pagination button:disabled { opacity: 0.35; cursor: default; }
+  #signatories-title { scroll-margin-top: 24px; }
+}
+@media print { .signatory-pagination { display: none !important; } }

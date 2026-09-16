@@ -25,10 +25,15 @@ import { site } from '../data/site';
         <p class="explainer">{site.explainerUrl ? <a href={site.explainerUrl}>Read the full explainer</a> : <span>Full explainer coming soon.</span>}</p>
       </article>
       <section id="signatories" aria-labelledby="signatories-title">
-        <h2 id="signatories-title">Signatories</h2>
+        <h2 id="signatories-title" tabindex="-1">Signatories</h2>
         <p id="signatories-status" class="placeholder-notice" role="status">Loading approved signatures…</p>
         <button id="retry-signatories" class="retry-link" type="button" hidden>Try again</button>
         <ul class="people-list" id="public-signatories"></ul>
+        <nav id="signatory-pagination" class="signatory-pagination" aria-label="Signatory pages" hidden>
+          <button id="signatories-previous" type="button" aria-controls="public-signatories">Previous</button>
+          <span id="signatories-page" role="status" aria-live="polite"></span>
+          <button id="signatories-next" type="button" aria-controls="public-signatories">Next</button>
+        </nav>
         <noscript><p>Please enable JavaScript to view the current signatories.</p></noscript>
       </section>
     </div>
