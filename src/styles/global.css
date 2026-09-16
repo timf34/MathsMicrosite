@@ -1,6 +1,7 @@
 :root {
   font-family: Helvetica, Arial, sans-serif;
   --preview-paper: #fff;
+  --preview-texture: none;
   --preview-ink: #111;
   --preview-rule: #222;
   --signatory-rule-width: 1px;

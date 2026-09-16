@@ -7,7 +7,8 @@ const showMotifs = import.meta.env.DEV && Astro.url.pathname === '/';
     <option value="original">Original grey</option>
     <option value="white">Crisp white</option>
     <option value="fine">White · fine lines</option>
-    <option value="paper">Warm white · softer lines</option>
+    <option value="paper">Copybook · smooth</option>
+    <option value="textured">Copybook · grain + grid</option>
   </select>
   {showMotifs && <div class="motif-options">
     <label for="motif-choice">Graphic</label>
@@ -22,11 +23,11 @@ const showMotifs = import.meta.env.DEV && Astro.url.pathname === '/';
   <button id="close-design-preview" type="button" aria-label="Exit style preview" title="Exit style preview">×</button>
 </div>
 <script>
-  const themes = ['original', 'white', 'fine', 'paper'];
+  const themes = ['original', 'white', 'fine', 'paper', 'textured'];
   const panel = document.querySelector<HTMLDivElement>('#design-switcher')!;
   const choice = document.querySelector<HTMLSelectElement>('#design-choice')!;
   const motifChoice = document.querySelector<HTMLSelectElement>('#motif-choice');
-  if (motifChoice) choice.value = 'fine';
+  if (motifChoice) choice.value = 'textured';
   motifChoice?.addEventListener('change', () => document.dispatchEvent(new CustomEvent('motif-change', { detail: motifChoice.value })));
   const initial = new URL(window.location.href).searchParams.get('design');
 
@@ -35,8 +36,9 @@ const showMotifs = import.meta.env.DEV && Astro.url.pathname === '/';
     if (previewing) document.documentElement.dataset.design = design!;
     else delete document.documentElement.dataset.design;
     panel.hidden = !previewing && !motifChoice;
-    if (previewing) choice.value = design!;
-    const colour = design === 'original' ? '#f1f1f1' : design === 'paper' ? '#fffefa' : '#ffffff';
+    choice.value = previewing ? design! : 'textured';
+    const activeDesign = previewing ? design : 'textured';
+    const colour = activeDesign === 'original' ? '#f1f1f1' : activeDesign === 'textured' ? '#fafbf8' : activeDesign === 'paper' ? '#f8f9f6' : '#ffffff';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', colour);
     // Carry the preview between the letter and essay, without changing section links.
     document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
