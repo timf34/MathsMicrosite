@@ -5,6 +5,7 @@ import { site } from '../data/site';
 ---
 <Layout>
   <a class="skip-link" href="#letter">Skip to the letter</a>
+  {site.explainerUrl && <nav class="mobile-letter-nav" aria-label="Page navigation"><a href={site.explainerUrl}>Read the explainer →</a></nav>}
   <main class="page-shell">
     <div class="content-column">
       <h1>A better standard for Leaving Cert maths</h1>
