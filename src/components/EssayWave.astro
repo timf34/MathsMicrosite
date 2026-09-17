@@ -1,0 +1,78 @@
+---
+const preview = import.meta.env.DEV;
+const wave = Array.from({ length: 221 }, (_, i) => {
+  const y = i === 220 ? 60 : 60 - 24 * Math.sin(i / 220 * Math.PI * 4);
+  return `${i ? 'L' : 'M'}${i + 10},${y.toFixed(2)}`;
+}).join(' ');
+---
+<div class="essay-wave" aria-hidden="true">
+  <svg viewBox="0 0 240 120" fill="none" focusable="false">
+    <path d="M10 60H230" class="wave-axis" />
+    <path class="essay-wave-line" d={wave} pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" />
+  </svg>
+</div>
+{preview && <div class="essay-layout-preview"><label>Essay layout
+  <select id="essay-layout-choice">
+    <option value="centred">Centred text</option>
+    <option value="left" selected>Homepage width</option>
+  </select>
+</label>
+</div>}
+<script>
+  const line = document.querySelector<SVGPathElement>('.essay-wave-line')!;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let frame = 0;
+  let previousScroll = window.scrollY;
+  let distance = window.scrollY;
+  const draw = () => {
+    frame = 0;
+    const scroll = Math.max(0, window.scrollY);
+    distance += Math.abs(scroll - previousScroll);
+    previousScroll = scroll;
+    if (scroll === 0) distance = 0;
+    // Reveal within roughly one screen, then keep flowing as the reader scrolls.
+    const progress = reduced.matches ? 1 : Math.min(1, scroll / Math.min(600, window.innerHeight * .8));
+    const phase = reduced.matches ? 0 : distance / 180;
+    const path = Array.from({ length: 221 }, (_, i) => {
+      const y = 60 - 24 * Math.sin(i / 220 * Math.PI * 4 - phase);
+      return `${i ? 'L' : 'M'}${i + 10},${y.toFixed(2)}`;
+    }).join(' ');
+    line.setAttribute('d', path);
+    line.setAttribute('stroke-dashoffset', String(100 * (1 - progress)));
+    line.style.opacity = progress === 0 ? '0' : '1';
+  };
+  const update = () => { if (!frame) frame = requestAnimationFrame(draw); };
+  window.addEventListener('scroll', update, { passive: true });
+  reduced.addEventListener('change', update);
+  window.addEventListener('resize', update);
+  window.addEventListener('pageshow', update);
+  new ResizeObserver(update).observe(document.body);
+  document.querySelector<HTMLSelectElement>('#essay-layout-choice')?.addEventListener('change', event => {
+    document.documentElement.dataset.essayLayout = (event.target as HTMLSelectElement).value;
+  });
+  draw();
+</script>
+<style is:global>
+  .essay-wave { display: none; pointer-events: none; }
+  @media (min-width: 768px) {
+    :root { --essay-sidebar-width: 350px; --essay-column-gap: 100px; }
+    :root:not([data-essay-layout="centred"]) .essay-main {
+      width: calc(min(1440px, 100vw - 32px) - var(--essay-sidebar-width) - var(--essay-column-gap));
+      margin-left: max(16px, calc((100vw - 1440px) / 2));
+      margin-right: auto;
+      padding-top: 104px;
+    }
+    .essay-wave { display: block; position: fixed; top: 45%; width: 240px; right: calc(max(16px, (100vw - 1440px) / 2) + (var(--essay-sidebar-width) - 240px) / 2); color: #a7adae; }
+    .essay-wave svg { width: 100%; overflow: visible; }
+    .essay-wave-line { stroke: currentColor; stroke-width: 1; }
+    .wave-axis { stroke: currentColor; stroke-width: .5; opacity: .35; }
+    :root[data-essay-layout="centred"] .essay-wave { right: 24px; width: max(0px, min(240px, calc((100vw - 720px) / 2 - 48px))); }
+  }
+  @media (min-width: 1280px) { :root { --essay-sidebar-width: 420px; } }
+  @media (min-width: 768px) and (max-width: 1023px) { :root { --essay-sidebar-width: 300px; --essay-column-gap: 48px; } }
+  .essay-layout-preview { position: fixed; bottom: 20px; right: 20px; z-index: 20; display: grid; gap: 10px; padding: 14px 16px; border: 1px solid #ddd; border-radius: 20px; background: var(--preview-paper); font: 13px Helvetica, Arial, sans-serif; }
+  .essay-layout-preview label { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .essay-layout-preview select { font: inherit; border: 0; color: inherit; background: transparent; }
+  @media (max-width: 767px) { .essay-layout-preview { display: none; } }
+  @media print { .essay-wave, .essay-layout-preview { display: none; } }
+</style>

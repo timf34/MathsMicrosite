@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import EssayWave from '../components/EssayWave.astro';
 import { Content, getHeadings } from './Maths curriculum.md';
 const headings = getHeadings().filter(heading => heading.depth > 1 && heading.slug !== 'footnote-label');
 ---
@@ -17,8 +18,40 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   <main class="essay-main" id="essay">
     <article class="essay-body"><Content /></article>
   </main>
+  <EssayWave />
 </Layout>
 <script>
+  const appendixHeading = document.getElementById('appendix-mathematical-errors-in-the-draft-specification');
+  if (appendixHeading) {
+    const disclosure = document.createElement('details');
+    disclosure.className = 'essay-appendix';
+    const summary = document.createElement('summary');
+    const content = document.createElement('div');
+    content.className = 'appendix-content';
+    appendixHeading.before(disclosure);
+    let sibling = appendixHeading.nextSibling;
+    while (sibling && !(sibling instanceof Element && (sibling.matches('[data-footnotes]') || sibling.matches('h1, h2, h3')))) {
+      const next = sibling.nextSibling;
+      content.append(sibling);
+      sibling = next;
+    }
+    summary.append(appendixHeading);
+    disclosure.append(summary, content);
+    const revealTarget = (hash: string) => {
+      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+      if (target && disclosure.contains(target)) disclosure.open = true;
+    };
+    document.addEventListener('click', event => {
+      const link = event.target instanceof Element ? event.target.closest('a') : null;
+      if (link && link.pathname === location.pathname && link.hash) revealTarget(link.hash);
+    });
+    window.addEventListener('hashchange', () => revealTarget(location.hash));
+    // Start collapsed, including when reloading an appendix URL.
+    // Deliberate in-page navigation still opens the relevant content.
+    let openBeforePrint = false;
+    window.addEventListener('beforeprint', () => { openBeforePrint = disclosure.open; disclosure.open = true; });
+    window.addEventListener('afterprint', () => { disclosure.open = openBeforePrint; });
+  }
   const menu = document.querySelector<HTMLDetailsElement>('#essay-menu')!;
   const trigger = menu.querySelector('summary')!;
   const links = [...menu.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
@@ -102,6 +135,13 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-body p, .essay-body li { font: 400 1.25rem/1.65 var(--serif); }
   .essay-body p { margin: 24px 0; }
   .essay-body h2, .essay-body h3 { font: 400 2rem/1.25 var(--serif); margin: 64px 0 24px; scroll-margin-top: 88px; }
+  .essay-appendix { margin-top: 64px; }
+  .essay-appendix summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 14px; }
+  .essay-appendix summary::-webkit-details-marker { display: none; }
+  .essay-appendix summary::after { content: '+'; font: 300 1.6rem/1 var(--serif); flex-shrink: 0; }
+  .essay-appendix[open] summary::after { content: '−'; }
+  .essay-appendix summary h3 { margin: 0; }
+  .essay-appendix summary:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
   .essay-body ul, .essay-body ol { padding-left: 1.5em; }
   .essay-body li { margin: 16px 0; padding-left: .25em; }
   .essay-body li p { margin: 12px 0; }
