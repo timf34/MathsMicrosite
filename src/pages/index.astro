@@ -2,26 +2,16 @@
 import Layout from '../layouts/Layout.astro';
 import ScrollMotif from '../components/ScrollMotif.astro';
 import { site } from '../data/site';
+import { Content as OpenLetter, getHeadings } from './OpenLetter.md';
+const letterHeading = getHeadings().find(heading => heading.depth === 1);
 ---
 <Layout>
   <a class="skip-link" href="#letter">Skip to the letter</a>
   {site.explainerUrl && <nav class="mobile-letter-nav" aria-label="Page navigation"><a href={site.explainerUrl}>Read the explainer →</a></nav>}
   <main class="page-shell">
     <div class="content-column">
-      <h1>A better standard for Leaving Cert maths</h1>
-      <article id="letter" aria-labelledby="letter-title">
-          <h2 id="letter-title" class="letter-lead">If the person who wrote the draft spec had to sit the current Leaving Cert maths exam, they would fail.</h2>
-          <p><em>The maths in this maths specification is wrong.</em> The specification contains numerous inaccurate descriptions, false claims, mathematical mistakes, etc. It also contains symbols that aren’t taught on the specification itself, and will be meaningless to students.</p>
-          <p>The NCCA says these are just ordinary errors, of the kind that always creep into documents like these, and they would have been caught and fixed through the consultation process. But at least three different experts raised these errors with the NCCA, and they were never corrected.</p>
-          <p>It is not clear if this was just ordinary incompetence, or if the NCCA believed it was acceptable to teach students error-riddled mathematics so long as it was simpler and more ‘appropriate’.</p>
-          <h3>The draft strips out content without replacing it with anything.</h3>
-          <p>Thanks to the backlash, we expect the NCCA will fix the most blatant errors. But the basic structure of the spec will probably remain the same, unless something is done about it at the ministerial level.</p>
-          <p>The most important topics of the old curriculum—most geometry, much trigonometry, all proofs by induction, all complex numbers—have been removed or dumbed-down, with nothing new to replace them and no additional depth for the topics that remain.</p>
-          <h3>The new assessment style does not work for mathematics.</h3>
-          <p>40% of the grade, including the whole statistics grade, now comes in the form of a non-exam ‘Investigating with Mathematics’ assessment. It will be graded on a qualitative basis in terms of vaguely-defined aptitudes, rather than via rigourous qualitative metrics that evaluate genuine mathematical ability.</p>
-          <p>NCCA received ministerial direction on this.</p>
-          <p class="letter-closing">See signatories against this below.</p>
-          <p class="letter-signoff">Q.E.D.</p>
+      <article id="letter" aria-labelledby={letterHeading?.slug}>
+        <div class="letter-copy"><OpenLetter /></div>
 
         <p class="explainer">{site.explainerUrl ? <a href={site.explainerUrl}>Read the full explainer</a> : <span>Full explainer coming soon.</span>}</p>
       </article>
@@ -63,3 +53,15 @@ import { site } from '../data/site';
 <script>
   import '../scripts/signatures';
 </script>
+
+<style>
+  #letter { margin-top: 0; }
+  .letter-copy :global(h1 + p) { margin-top: 64px; }
+  .letter-copy :global(ol) { padding-left: 1.4em; margin-top: 24px; }
+  .letter-copy :global(li) { font-size: 1.375rem; line-height: 1.375; padding-left: .25em; margin-top: 20px; }
+  .letter-copy :global(p:last-child) { text-align: right; }
+  @media (max-width: 767px) {
+    .letter-copy :global(h1 + p) { margin-top: 40px; }
+    .letter-copy :global(li) { font-size: 1.125rem; }
+  }
+</style>
