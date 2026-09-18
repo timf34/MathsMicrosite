@@ -1,8 +1,9 @@
 ---
+import { PASSWORD_PROTECTION_ENABLED } from '../../deployment-settings.js';
 interface Props { title?: string; description?: string; }
 const { title = 'Save Maths — Open letter on Leaving Cert maths reform', description = 'Read and sign the open letter calling for a rethink of the proposed Leaving Certificate maths specification in Ireland.' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const isPreview = import.meta.env.DEV || import.meta.env.VERCEL_ENV === 'preview';
+const isPreview = PASSWORD_PROTECTION_ENABLED || import.meta.env.DEV || import.meta.env.VERCEL_ENV === 'preview';
 import '../styles/global.css';
 import '../styles/design-variants.css';
 import DesignSwitcher from '../components/DesignSwitcher.astro';
