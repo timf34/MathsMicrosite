@@ -1,3 +1,4 @@
+import { submitSignature } from './submit-signature.mjs';
 const form = document.querySelector<HTMLFormElement>('#signature-form')!;
 const fields = document.querySelector<HTMLFieldSetElement>('#form-fields')!;
 const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
@@ -116,12 +117,12 @@ form.addEventListener('submit', async event => {
   button.textContent = 'Submitting…';
   status.textContent = '';
   try {
-    const response = await fetch('/api/signatures', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload), signal: AbortSignal.timeout(25000),
+    await submitSignature(payload, {
+      onRetry: (attempt: number) => {
+        button.textContent = 'Retrying…';
+        status.textContent = `Connection interrupted. Retrying automatically (attempt ${attempt} of 3)…`;
+      },
     });
-    const data = await response.json();
-    if (!response.ok || data.ok !== true) throw new Error(data.error || 'We could not confirm your submission. Please try again.');
     document.querySelector<HTMLElement>('#signature-entry')!.hidden = true;
     const signatureSection = document.querySelector<HTMLElement>('#sign')!;
     signatureSection.removeAttribute('aria-labelledby');
