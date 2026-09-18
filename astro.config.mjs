@@ -5,6 +5,11 @@ import signatureHandler from './api/signatures.js';
 
 // https://astro.build/config
 export default defineConfig({
+  site: process.env.PUBLIC_SITE_URL || "https://savemaths.ie",
+  redirects: {
+    '/OpenLetter': '/',
+    '/Maths curriculum': '/explainer/',
+  },
   vite: {
     plugins: [{
       name: 'local-signature-api',

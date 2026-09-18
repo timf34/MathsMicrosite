@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import ScrollMotif from '../components/ScrollMotif.astro';
 import { site } from '../data/site';
-import { Content as OpenLetter, getHeadings } from './OpenLetter.md';
+import { Content as OpenLetter, getHeadings } from '../content/OpenLetter.md';
 const letterHeading = getHeadings().find(heading => heading.depth === 1);
 ---
 <Layout>
@@ -44,6 +44,7 @@ const letterHeading = getHeadings().find(heading => heading.depth === 1);
       </form>
       <p id="preview-note">Checking whether signing is open…</p>
       </div>
+      <p class="privacy-link"><a href="/privacy/">Privacy info</a></p>
       <p id="signature-status" role="status" aria-live="polite" tabindex="-1"></p>
       {site.explainerUrl && <p class="signature-explainer"><a href={site.explainerUrl}>Read the full explainer</a></p>}
       <ScrollMotif />
@@ -55,6 +56,7 @@ const letterHeading = getHeadings().find(heading => heading.depth === 1);
 </script>
 
 <style>
+  .privacy-link { margin-top: 10px; font-size: .8125rem; line-height: 1.5; color: #555; }
   #letter { margin-top: 0; }
   .letter-copy :global(h1 + p) { margin-top: 64px; }
   .letter-copy :global(ol) { padding-left: 1.4em; margin-top: 24px; }

@@ -1,6 +1,8 @@
 ---
-interface Props { title?: string; }
-const { title = 'A better standard for Leaving Cert maths — An open letter' } = Astro.props;
+interface Props { title?: string; description?: string; }
+const { title = 'Save Maths — Open letter on Leaving Cert maths reform', description = 'Read and sign the open letter calling for a rethink of the proposed Leaving Certificate maths specification in Ireland.' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const isPreview = import.meta.env.DEV || import.meta.env.VERCEL_ENV === 'preview';
 import '../styles/global.css';
 import '../styles/design-variants.css';
 import DesignSwitcher from '../components/DesignSwitcher.astro';
@@ -12,8 +14,18 @@ import DesignSwitcher from '../components/DesignSwitcher.astro';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="description" content="An open letter on the future of Leaving Cert mathematics. Read the letter and explore the concerns about the draft specification." />
+    <meta name="robots" content={isPreview ? "noindex, nofollow" : "index, follow"} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Save Maths" />
+    <meta property="og:locale" content="en_IE" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <meta name="theme-color" content="#fafbf8" />
     <title>{title}</title>
     <script is:inline>

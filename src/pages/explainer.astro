@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import EssayWave from '../components/EssayWave.astro';
-import { Content, getHeadings } from './Maths curriculum.md';
+import { Content, getHeadings } from '../content/Maths curriculum.md';
 const headings = getHeadings().filter(heading => heading.depth > 1 && heading.slug !== 'footnote-label');
 ---
-<Layout title="Ireland is about to destroy senior maths education — Maths Matters">
+<Layout title="Leaving Cert maths reform explained — Save Maths" description="Why the proposed Leaving Cert maths specification raises concerns about assessment, mathematical content and standards. Read the full explainer and appendix.">
   <a class="skip-link" href="#essay">Skip to the essay</a>
   <div class="essay-controls">
     <details class="essay-menu" id="essay-menu">
@@ -126,8 +126,10 @@ const headings = getHeadings().filter(heading => heading.depth > 1 && heading.sl
   .essay-menu[open] nav { animation: menu-appear 220ms ease-out; }
   @keyframes menu-appear { from { opacity: 0; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .essay-menu[open] nav { animation: none; } .burger span { transition: none; } }
-  @media (min-width: 1280px) {
-    .essay-menu nav { width: min(300px, calc((100vw - 720px) / 2 - 48px)); }
+  @media (min-width: 768px) {
+    .essay-controls { left: auto; justify-content: flex-end; gap: 8px; }
+    .essay-home { order: -1; }
+    .essay-menu nav { left: auto; right: 0; width: min(340px, var(--essay-sidebar-width, 300px)); }
   }
   .essay-main { width: min(720px, calc(100% - 48px)); margin: 0 auto; padding: 100px 0 80px; }
   .essay-body { margin: 0; overflow-wrap: break-word; }

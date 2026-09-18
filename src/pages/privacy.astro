@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Privacy info — Save Maths" description="How Save Maths uses signatory information, keeps email addresses private, and handles requests to withdraw a signature.">
+  <main class="privacy-page">
+    <a class="back-link" href="/">← Back to the open letter</a>
+    <h1>Privacy info</h1>
+    <p>If you sign, your name and (if you give them) your role and institution may be published.</p>
+    <p>Your email address will never be published; we'll use it only to confirm your signature and to contact you if necessary.</p>
+    <p>We'll delete all signatory data within a few months of the campaign ending.</p>
+    <p>To withdraw your signature or ask what we hold about you, email <a href="mailto:peter@thefitzwilliam.com">peter [at] thefitzwilliam [dot] com</a>.</p>
+  </main>
+</Layout>
+<style>
+  .privacy-page { width: min(720px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 80px; }
+  .back-link { display: inline-block; font-size: .9375rem; margin-bottom: 64px; }
+  h1 { font-size: 2.75rem; margin-bottom: 40px; }
+  p { font-size: 1.125rem; line-height: 1.6; margin: 24px 0; }
+  @media (max-width: 767px) { .privacy-page { padding-top: 24px; } .back-link { margin-bottom: 48px; } }
+</style>
