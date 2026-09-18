@@ -12,8 +12,6 @@ const letterHeading = getHeadings().find(heading => heading.depth === 1);
     <div class="content-column">
       <article id="letter" aria-labelledby={letterHeading?.slug}>
         <div class="letter-copy"><OpenLetter /></div>
-
-        <p class="explainer">{site.explainerUrl ? <a href={site.explainerUrl}>Read the full explainer</a> : <span>Full explainer coming soon.</span>}</p>
       </article>
       <section id="signatories" aria-labelledby="signatories-title">
         <h2 id="signatories-title" tabindex="-1">Signatories</h2>
