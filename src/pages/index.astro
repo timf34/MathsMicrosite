@@ -58,12 +58,14 @@ const letterHeading = getHeadings().find(heading => heading.depth === 1);
 <style>
   .privacy-link { margin-top: 10px; font-size: .8125rem; line-height: 1.5; color: #555; }
   #letter { margin-top: 0; }
-  .letter-copy :global(h1 + p) { margin-top: 64px; }
+  .letter-copy :global(.mobile-sign-link) { display: none; }
+  .letter-copy :global(.mobile-sign-link + p) { margin-top: 64px; }
   .letter-copy :global(ol) { padding-left: 1.4em; margin-top: 24px; }
   .letter-copy :global(li) { font-size: 1.375rem; line-height: 1.375; padding-left: .25em; margin-top: 20px; }
   .letter-copy :global(.letter-tombstone) { text-align: right; }
   @media (max-width: 767px) {
-    .letter-copy :global(h1 + p) { margin-top: 40px; }
+    .letter-copy :global(.mobile-sign-link) { display: block; margin-top: 40px; }
+    .letter-copy :global(.mobile-sign-link + p) { margin-top: 24px; }
     .letter-copy :global(li) { font-size: 1.125rem; }
   }
 </style>

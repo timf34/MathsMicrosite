@@ -1,6 +1,6 @@
 # Open letter: the new Leaving Certificate maths specification could destroy Irish maths education.
 
-[**Sign the open letter**](#sign)
+<p class="mobile-sign-link"><a href="#sign"><strong>Sign the open letter</strong></a></p>
 
 The Government must withdraw the proposed specification immediately, and start the process afresh, with mathematical experts centre-stage in the decision-making process.
 
