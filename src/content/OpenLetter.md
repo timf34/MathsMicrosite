@@ -1,7 +1,5 @@
 # Open letter: the new Leaving Certificate maths specification could destroy Irish maths education.
 
-<p class="mobile-sign-link"><a href="#sign"><strong>Sign the open letter</strong></a></p>
-
 The Government must withdraw the proposed specification immediately, and start the process afresh, with mathematical experts centre-stage in the decision-making process.
 
 Under the proposals, 40% of students’ Leaving Cert maths marks would come from a subjective, gameable, non-mathematical assessment of their performance at a one-day ‘event’. This alone would destroy the rigour and reputation of the qualification.
