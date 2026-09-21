@@ -5,10 +5,11 @@ import signatureHandler from './api/signatures.js';
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.PUBLIC_SITE_URL || "https://savemaths.ie",
+  site: process.env.PUBLIC_SITE_URL || "https://www.savemaths.ie",
   redirects: {
     '/OpenLetter': '/',
-    '/Maths curriculum': '/explainer/',
+    '/Maths curriculum': 'https://thefitzwilliam.com/leaving-cert-maths',
+    '/explainer': 'https://thefitzwilliam.com/leaving-cert-maths',
   },
   vite: {
     plugins: [{

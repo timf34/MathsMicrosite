@@ -7,7 +7,7 @@ const letterHeading = getHeadings().find(heading => heading.depth === 1);
 ---
 <Layout>
   <a class="skip-link" href="#letter">Skip to the letter</a>
-  {site.explainerUrl && <nav class="mobile-letter-nav" aria-label="Page navigation"><a href={site.explainerUrl}>Read the explainer →</a></nav>}
+  {site.articleUrl && <nav class="mobile-letter-nav" aria-label="Page navigation"><a href={site.articleUrl}>Read the Fitzwilliam article →</a></nav>}
   <main class="page-shell">
     <div class="content-column">
       <article id="letter" aria-labelledby={letterHeading?.slug}>
@@ -44,7 +44,7 @@ const letterHeading = getHeadings().find(heading => heading.depth === 1);
       </div>
       <p class="privacy-link"><a href="/privacy/">Privacy info</a></p>
       <p id="signature-status" role="status" aria-live="polite" tabindex="-1"></p>
-      {site.explainerUrl && <p class="signature-explainer"><a href={site.explainerUrl}>Read the full explainer</a></p>}
+      {site.articleUrl && <p class="signature-explainer"><a href={site.articleUrl}>Read the Fitzwilliam article</a></p>}
       <ScrollMotif />
     </aside>
   </main>

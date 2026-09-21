@@ -1,7 +1,7 @@
 export const site = {
   title: "A better standard for Leaving Cert maths.",
-  // The essay page renders the supplied Markdown document.
-  explainerUrl: "/explainer/",
+  // Independent background article, published separately from this campaign.
+  articleUrl: "https://thefitzwilliam.com/leaving-cert-maths",
 };
 
 export interface Signatory {

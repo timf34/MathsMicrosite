@@ -16,4 +16,4 @@ The Government must take action:
 
 <p class="letter-tombstone">∎</p>
 
-We are a group of mathematicians, technologists, educators and others, who are deeply concerned about this plan and what it means for the future of our country. You can read a more detailed explainer [here](/explainer/).
+We are a group of mathematicians, technologists, educators and others, who are deeply concerned about this plan and what it means for the future of our country. For more background, read [the separate article published by The Fitzwilliam](https://thefitzwilliam.com/leaving-cert-maths).
