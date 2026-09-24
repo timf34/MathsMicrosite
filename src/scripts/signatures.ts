@@ -105,6 +105,11 @@ form.addEventListener('submit', async event => {
   for (const [key, value] of [['firstName', firstName], ['lastName', lastName]]) {
     (form.elements.namedItem(key) as HTMLInputElement).setCustomValidity(value ? '' : 'Please enter your name.');
   }
+  for (const [key, label] of [['role', 'role or title'], ['institution', 'institution / company']]) {
+    (form.elements.namedItem(key) as HTMLInputElement).setCustomValidity(
+      String(values.get(key) ?? '').trim() ? '' : `Please enter your ${label}.`,
+    );
+  }
   if (!form.reportValidity()) return;
   const payload = {
     firstName, lastName, email: String(values.get('email') ?? '').trim(),

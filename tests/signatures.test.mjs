@@ -5,10 +5,10 @@ import { readFileSync } from 'node:fs';
 import { handleSignatures } from '../server/signatures.mjs';
 
 const env = { GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/test-deployment/exec', GOOGLE_SCRIPT_SECRET: 'test-secret-that-is-at-least-32-characters' };
-const valid = { firstName: 'Test', lastName: 'Reader', email: 'test@example.com', role: 'Teacher', consent: true, website: '', submissionId: '12345678-1234-1234-1234-123456789012', elapsedMs: 3000 };
+const valid = { firstName: 'Test', lastName: 'Reader', email: 'test@example.com', role: 'Teacher', institution: 'Example School', consent: true, website: '', submissionId: '12345678-1234-1234-1234-123456789012', elapsedMs: 3000 };
 const request = (body = valid, headers = {}) => new Request('https://example.org/api/signatures', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://example.org', ...headers }, body: JSON.stringify(body) });
 const read = () => new Request('https://example.org/api/signatures');
-const success = async () => Response.json({ ok: true });
+const success = async () => Response.json({ ok: true, supportsInstitution: true });
 
 test('not configured: clear disabled state and no accepted submission', async () => {
   assert.deepEqual(await (await handleSignatures(read(), { env: {} })).json(), { configured: false, signatories: [] });
@@ -53,6 +53,16 @@ test('reject cross-origin and oversized requests', async () => {
   assert.equal((await handleSignatures(request(valid, { origin: 'https://unrelated.example' }), { env })).status, 403);
   assert.equal((await handleSignatures(request({ ...valid, extra: 'a'.repeat(9000) }), { env })).status, 413);
 });
+test('new submissions require a nonblank role and institution before contacting the Sheet', async () => {
+  for (const field of ['role', 'institution']) {
+    for (const value of [undefined, null, '', '   ']) {
+      const result = await handleSignatures(request({ ...valid, [field]: value }), {
+        env, fetchImpl: () => assert.fail('Invalid submissions must not reach the Sheet'),
+      });
+      assert.equal(result.status, 400);
+    }
+  }
+});
 test('invalid or failed Google responses never claim success or leak details', async () => {
   for (const fetchImpl of [async () => { throw new Error('private internal URL'); }, async () => Response.json({ ok: false, secret: 'private' }), async () => new Response('<html>Google sign-in</html>')]) {
     const result = await handleSignatures(request(), { env, fetchImpl });
@@ -61,7 +71,7 @@ test('invalid or failed Google responses never claim success or leak details', a
   }
 });
 test('upstream throttling gives a retryable public error', async () => {
-  const result = await handleSignatures(request(), { env, fetchImpl: async () => Response.json({ ok: false, code: 'RATE_LIMIT' }) });
+  const result = await handleSignatures(request(), { env, fetchImpl: async (_, options) => JSON.parse(options.body).action === 'list' ? success() : Response.json({ ok: false, code: 'RATE_LIMIT' }) });
   assert.equal(result.status, 429);
 });
 
@@ -147,7 +157,7 @@ test('website-to-script contract works for pending, approved and hidden states',
   assert.equal((await handleSignatures(request(), { env, fetchImpl })).status, 200);
   assert.deepEqual((await (await handleSignatures(read(), { env, fetchImpl })).json()).signatories, []);
   sheet.rows[1][3] = 'Approved';
-  assert.deepEqual((await (await handleSignatures(read(), { env, fetchImpl })).json()).signatories, [{ name: 'Test Reader', role: 'Teacher' }]);
+  assert.deepEqual((await (await handleSignatures(read(), { env, fetchImpl })).json()).signatories, [{ name: 'Test Reader', role: 'Teacher', institution: 'Example School' }]);
   sheet.rows[1][3] = 'Hidden';
   assert.deepEqual((await (await handleSignatures(read(), { env, fetchImpl })).json()).signatories, []);
 });

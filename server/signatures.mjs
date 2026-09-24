@@ -36,9 +36,9 @@ export async function handleSignatures(request, { env = process.env, fetchImpl =
     // A blocked submission must never look saved to a real visitor.
     if (body.website) return json({ error: 'Your submission was blocked by the spam check. Please reload the page and enter your details manually without autofill.' }, 400);
     if (!text(body.firstName, 70) || !text(body.lastName, 70) || !text(body.email, 254)
-      || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim()) || !text(body.role ?? '', 100, false)
-      || !text(body.institution ?? '', 150, false) || body.consent !== true || !/^[a-zA-Z0-9-]{16,80}$/.test(body.submissionId ?? '')) {
-      return json({ error: 'Please enter your name and a valid email address, and confirm publication consent.' }, 400);
+      || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim()) || !text(body.role, 100)
+      || !text(body.institution, 150) || body.consent !== true || !/^[a-zA-Z0-9-]{16,80}$/.test(body.submissionId ?? '')) {
+      return json({ error: 'Please enter your name, a valid email address, role or title and institution / company, and confirm publication consent.' }, 400);
     }
     if (!Number.isFinite(body.elapsedMs) || body.elapsedMs < 1500) return json({ error: 'Please take a moment to check your details, then try again.' }, 400);
     payload = {
@@ -59,7 +59,7 @@ export async function handleSignatures(request, { env = process.env, fetchImpl =
       });
       const capability = capabilityResponse.ok ? await capabilityResponse.json() : null;
       if (capability?.ok !== true || capability?.supportsInstitution !== true) {
-        return json({ error: 'Institution / company submissions are not available yet. Please try again later, or leave that optional field blank.' }, 503);
+        return json({ error: 'Signing is temporarily unavailable. Please try again later.' }, 503);
       }
     }
     const response = await fetchImpl(endpoint, {
