@@ -38,5 +38,24 @@ import DesignSwitcher from '../components/DesignSwitcher.astro';
       }
     </script>
   </head>
-  <body><slot /><DesignSwitcher /></body>
+  <body>
+    <slot />
+    <footer class="site-credit">
+      <small>website designed by <a href="https://timfarrelly.com">Tim Farrelly</a></small>
+    </footer>
+    <DesignSwitcher />
+  </body>
 </html>
+
+<style>
+  .site-credit {
+    padding: 0 16px 12px;
+    text-align: right;
+    color: #b6a589;
+    line-height: 1.5;
+  }
+  .site-credit small { font-size: 10px; }
+  .site-credit a { text-decoration: none; }
+  .site-credit a:hover,
+  .site-credit a:focus-visible { text-decoration: underline; }
+</style>
