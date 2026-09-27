@@ -14,6 +14,5 @@ The Government should take action:
 2. The rule that 40% of marks will come from non-exam assessment must be lifted for maths. This was a blanket political commitment made for all subjects, before any consultation with mathematical experts; it does not make sense for maths.
 3. We suggest a new mathematics subject group be set up under [s. 30(3)(b) of the Education Act 1998](https://www.irishstatutebook.ie/eli/1998/act/51/section/30/enacted/en/html#sec30) with a much greater presence of expert mathematicians and independent of the NCCA, with direct input into the new draft specification.
 
-<p class="letter-tombstone">∎</p>
 
-We are a group of mathematicians, technologists, educators and others, who are deeply concerned about this plan and what it means for the future of Ireland. Two of us, Peter McLaughlin and Sam Enright, have written up their thoughts in more detail in an [an article published by *The Fitzwilliam*](https://thefitzwilliam.com/leaving-cert-maths).
+We are a group of mathematicians, technologists, educators and others, who are deeply concerned about this plan and what it means for the future of Ireland. Two of us, Peter McLaughlin and Sam Enright, have written up their thoughts in more detail in an [an article published by *The Fitzwilliam*](https://thefitzwilliam.com/leaving-cert-maths). Views are expressed in a personal capacity and do not necessarily reflect our employers’.
