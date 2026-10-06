@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/original_curriculum",
+      "destination": "/original_curriculum.pdf"
+    }
+  ]
+}
